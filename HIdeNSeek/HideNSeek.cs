@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,8 @@ namespace HideNSeek
 {
     public partial class HideNSeek : Form
     {
-        private Bitmap img;
+        private Bitmap imgMap;
+        private string imgPath;
 
         public HideNSeek()
         {
@@ -24,7 +26,16 @@ namespace HideNSeek
         public HideNSeek(string[] imgs)
         {
             InitializeComponent();
-            img = new Bitmap(imgs[0]);
+            string extension = Path.GetExtension(imgs[0]).ToLower();
+            if (extension != ".png" && extension != ".jpg")
+            {
+                status.Text = "File Selected is not an image";
+            }
+            else
+            {
+                status.Text = "File Selected: " + imgs[0];
+                imgMap = new Bitmap(imgs[0]);
+            }
         }
 
         private void HideNSeek_Load(object sender, EventArgs e)
@@ -51,21 +62,65 @@ namespace HideNSeek
                 }
                 else
                 {
-                    status.Text = "File Selected: " + dlg.FileName;
-                    img = new Bitmap(dlg.FileName);
+                    imgPath = dlg.FileName;
+                    status.Text = "File Selected: " + imgPath;
+                    imgMap = new Bitmap(imgPath);
                 }
             }
         }
 
         private void Hide_Click(object sender, EventArgs e)
         {
-            string plaintext = textBox1.Text;
+            if(imgMap == null)
+            {
+                return;
+            }
+
+            string plaintext = "<START>" + textBox1.Text + "<END>";
             textBox1.Text = "";
+            byte[] textInBin = Encoding.UTF8.GetBytes(plaintext);
+
+            for (int i = 0; i < imgMap.Width; i++)
+            {
+                for (int j = 0; j < imgMap.Height; j++)
+                {
+                    Color pixelColor = imgMap.GetPixel(i, j);
+                    Color newColor = Color.FromArgb(pixelColor.R, 0, 0);
+                    imgMap.SetPixel(i, j, newColor);
+                }
+            }
+            string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";
+            imgMap.Save(newPath, ImageFormat.Png);
+            Console.WriteLine(newPath);
+            status.Text = "File Saved: " + newPath;
+            /*
+            ImageConverter converter = new ImageConverter();
+            byte[] imgInBin = (byte[])converter.ConvertTo(imgMap, typeof(byte[]));
+            */
         }
 
         private void Seek_Click(object sender, EventArgs e)
         {
+            if (imgMap == null)
+            {
+                return;
+            }
 
+            ImageConverter converter = new ImageConverter();
+            byte[] imgInBin = (byte[])converter.ConvertTo(imgMap, typeof(byte[]));
+
+            foreach(byte b in imgInBin)
+            {
+                Console.WriteLine(b);
+            }
+
+            string plaintext = Encoding.UTF8.GetString(imgInBin);
+            textBox1.Text = plaintext;
+        }
+
+        static string ToBinaryString(Encoding encoding, string text)
+        {
+            return string.Join("", encoding.GetBytes(text).Select(n => Convert.ToString(n, 2).PadLeft(8, '0')));
         }
     }
 }
