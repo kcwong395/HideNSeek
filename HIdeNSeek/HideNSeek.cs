@@ -78,71 +78,71 @@ namespace HideNSeek
             }
 
             // pre-processing the hidden message
-            string plaintext = "<START>" + textBox1.Text + "<END>";
+            string plaintext = "<STR>" + textBox1.Text + "<END>";
             textBox1.Text = "";
             byte[] textInBin = Encoding.UTF8.GetBytes(plaintext);
-            int i = 0, j = 7;
 
             // ensure that the photo has enough space for the message
-            if(textInBin.Length > imgMap.Width * imgMap.Height * 3)
+            if (textInBin.Length > (imgMap.Width * imgMap.Height * 3) / 8.0)
             {
                 status.Text = "Not Enough Space";
                 return;
             }
 
             // insert the hidden message
+            InsertMsg(textInBin, imgMap);
+
+            // save the picture with hidden message
+            string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";
+            imgMap.Save(newPath, ImageFormat.Png);
+
+            // now the user selects no image
+            imgPath = "";
+            status.Text = "Waiting for input...";
+        }
+
+        private void InsertMsg(byte[] textInBin, Bitmap imgMap)
+        {
+            int i = 0, j = 7;
             for (int x = 0; x < imgMap.Width; x++)
             {
                 for (int y = 0; y < imgMap.Height; y++)
                 {
+                    if (i == textInBin.Length) return;
+
                     Color pixelColor = imgMap.GetPixel(x, y);
 
                     int bit = (textInBin[i] >> j--) & 1;
                     Color newColor = Color.FromArgb(pixelColor.R & 0xFE + bit, pixelColor.G, pixelColor.B);
                     imgMap.SetPixel(x, y, newColor);
-                    if(j < 0)
+                    if (j < 0)
                     {
                         i++;
                         j = 7;
+                        if (i == textInBin.Length) return;
                     }
 
                     bit = (textInBin[i] >> j--) & 1;
-                    newColor = Color.FromArgb(pixelColor.R, pixelColor.G & 0xFE + bit, pixelColor.B);
+                    newColor = Color.FromArgb(newColor.R, pixelColor.G & 0xFE + bit, pixelColor.B);
                     imgMap.SetPixel(x, y, newColor);
                     if (j < 0)
                     {
                         i++;
                         j = 7;
+                        if (i == textInBin.Length) return;
                     }
 
                     bit = (textInBin[i] >> j--) & 1;
-                    newColor = Color.FromArgb(pixelColor.R, pixelColor.G, pixelColor.B & 0xFE + bit);
+                    newColor = Color.FromArgb(newColor.R, newColor.G, pixelColor.B & 0xFE + bit);
                     imgMap.SetPixel(x, y, newColor);
                     if (j < 0)
                     {
                         i++;
                         j = 7;
+                        if (i == textInBin.Length) return;
                     }
                 }
             }
-            
-            // save the picture with hidden message
-            string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";
-            imgMap.Save(newPath, ImageFormat.Png);
-            status.Text = "File Saved: " + newPath;
-
-            // now the user selects no image
-            imgPath = "";
-
-            /*
-            ImageConverter converter = new ImageConverter();
-            byte[] imgInBin = (byte[])converter.ConvertTo(imgMap, typeof(byte[]));
-            */
-        }
-
-        private void InsertMsg(byte[] textInBin, Bitmap imgMap)
-        {
-
         }
 
         private void Seek_Click(object sender, EventArgs e)
@@ -152,21 +152,56 @@ namespace HideNSeek
                 return;
             }
 
-            ImageConverter converter = new ImageConverter();
-            byte[] imgInBin = (byte[])converter.ConvertTo(imgMap, typeof(byte[]));
+            byte[] textInBin = new byte[(int)Math.Ceiling((imgMap.Width * imgMap.Height * 3) / 8.0)];
 
-            foreach(byte b in imgInBin)
-            {
-                Console.WriteLine(b);
-            }
+            ExtractMsg(textInBin, imgMap);
+            
+            string plaintext = Encoding.UTF8.GetString(textInBin);
 
-            string plaintext = Encoding.UTF8.GetString(imgInBin);
             textBox1.Text = plaintext;
-        }
 
-        static string ToBinaryString(Encoding encoding, string text)
+            // now the user selects no image
+            imgPath = "";
+            status.Text = "Waiting for input...";
+        }
+        
+        private void ExtractMsg(byte[] textInBin, Bitmap imgMap)
         {
-            return string.Join("", encoding.GetBytes(text).Select(n => Convert.ToString(n, 2).PadLeft(8, '0')));
+            int i = 0, j = 7;
+            int[] mask = { 1, 2, 4, 8, 16, 32, 64, 128 };
+            int sum = 0;
+            for (int x = 0; x < imgMap.Width; x++)
+            {
+                for (int y = 0; y < imgMap.Height; y++)
+                {
+                    if (i == textInBin.Length) return;
+                    
+                    Color pixelColor = imgMap.GetPixel(x, y);
+
+                    sum += (pixelColor.R & 1) * mask[j--];
+                    if(j < 0)
+                    {
+                        j = 7;
+                        textInBin[i++] = (byte)sum;
+                        sum = 0;
+                    }
+                    sum += (pixelColor.G & 1) * mask[j--];
+                    if (j < 0)
+                    {
+                        j = 7;
+                        textInBin[i++] = (byte)sum;
+                        sum = 0;
+                    }
+                    sum += (pixelColor.B & 1) * mask[j--];
+                    if (j < 0)
+                    {
+                        j = 7;
+                        textInBin[i++] = (byte)sum;
+                        sum = 0;
+                    }
+                }
+            }
+            return;
         }
     }
 }
