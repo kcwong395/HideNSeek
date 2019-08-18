@@ -71,37 +71,83 @@ namespace HideNSeek
 
         private void Hide_Click(object sender, EventArgs e)
         {
-            if(imgMap == null)
+            // check if any file is selected
+            if(string.IsNullOrEmpty(imgPath))
             {
                 return;
             }
 
+            // pre-processing the hidden message
             string plaintext = "<START>" + textBox1.Text + "<END>";
             textBox1.Text = "";
             byte[] textInBin = Encoding.UTF8.GetBytes(plaintext);
+            int i = 0, j = 7;
 
-            for (int i = 0; i < imgMap.Width; i++)
+            // ensure that the photo has enough space for the message
+            if(textInBin.Length > imgMap.Width * imgMap.Height * 3)
             {
-                for (int j = 0; j < imgMap.Height; j++)
+                status.Text = "Not Enough Space";
+                return;
+            }
+
+            // insert the hidden message
+            for (int x = 0; x < imgMap.Width; x++)
+            {
+                for (int y = 0; y < imgMap.Height; y++)
                 {
-                    Color pixelColor = imgMap.GetPixel(i, j);
-                    Color newColor = Color.FromArgb(pixelColor.R, 0, 0);
-                    imgMap.SetPixel(i, j, newColor);
+                    Color pixelColor = imgMap.GetPixel(x, y);
+
+                    int bit = (textInBin[i] >> j--) & 1;
+                    Color newColor = Color.FromArgb(pixelColor.R & 0xFE + bit, pixelColor.G, pixelColor.B);
+                    imgMap.SetPixel(x, y, newColor);
+                    if(j < 0)
+                    {
+                        i++;
+                        j = 7;
+                    }
+
+                    bit = (textInBin[i] >> j--) & 1;
+                    newColor = Color.FromArgb(pixelColor.R, pixelColor.G & 0xFE + bit, pixelColor.B);
+                    imgMap.SetPixel(x, y, newColor);
+                    if (j < 0)
+                    {
+                        i++;
+                        j = 7;
+                    }
+
+                    bit = (textInBin[i] >> j--) & 1;
+                    newColor = Color.FromArgb(pixelColor.R, pixelColor.G, pixelColor.B & 0xFE + bit);
+                    imgMap.SetPixel(x, y, newColor);
+                    if (j < 0)
+                    {
+                        i++;
+                        j = 7;
+                    }
                 }
             }
+            
+            // save the picture with hidden message
             string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";
             imgMap.Save(newPath, ImageFormat.Png);
-            Console.WriteLine(newPath);
             status.Text = "File Saved: " + newPath;
+
+            // now the user selects no image
+            imgPath = "";
+
             /*
             ImageConverter converter = new ImageConverter();
             byte[] imgInBin = (byte[])converter.ConvertTo(imgMap, typeof(byte[]));
             */
         }
 
+        private void InsertMsg(byte[] textInBin, Bitmap imgMap)
+        {
+
+        }
+
         private void Seek_Click(object sender, EventArgs e)
         {
-            if (imgMap == null)
+            if (string.IsNullOrEmpty(imgPath))
             {
                 return;
             }
