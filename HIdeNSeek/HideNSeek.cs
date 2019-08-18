@@ -35,6 +35,7 @@ namespace HideNSeek
             {
                 status.Text = "File Selected: " + imgs[0];
                 imgMap = new Bitmap(imgs[0]);
+                imgPath = imgs[0];
             }
         }
 
@@ -78,10 +79,10 @@ namespace HideNSeek
             }
 
             // pre-processing the hidden message
-            string plaintext = "<STR>" + textBox1.Text + "<END>";
+            string plaintext = "<STR " + textBox1.Text + " END>";
             textBox1.Text = "";
             byte[] textInBin = Encoding.UTF8.GetBytes(plaintext);
-
+            
             // ensure that the photo has enough space for the message
             if (textInBin.Length > (imgMap.Width * imgMap.Height * 3) / 8.0)
             {
@@ -91,13 +92,14 @@ namespace HideNSeek
 
             // insert the hidden message
             InsertMsg(textInBin, imgMap);
-
+            
             // save the picture with hidden message
             string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";
             imgMap.Save(newPath, ImageFormat.Png);
 
             // now the user selects no image
             imgPath = "";
+            imgMap = null;
             status.Text = "Waiting for input...";
         }
 
@@ -111,9 +113,19 @@ namespace HideNSeek
                     if (i == textInBin.Length) return;
 
                     Color pixelColor = imgMap.GetPixel(x, y);
-
+                    
                     int bit = (textInBin[i] >> j--) & 1;
-                    Color newColor = Color.FromArgb(pixelColor.R & 0xFE + bit, pixelColor.G, pixelColor.B);
+                    Console.WriteLine((pixelColor.R & 0xFE) + bit);
+                    Color newColor = Color.FromArgb((pixelColor.R & 0xFE) + bit, pixelColor.G, pixelColor.B);
+                    if (j < 0)
+                    {
+                        i++;
+                        j = 7;
+                        if (i == textInBin.Length) return;
+                    }
+
+                    bit = (textInBin[i] >> j--) & 1;
+                    newColor = Color.FromArgb(newColor.R, (pixelColor.G & 0xFE) + bit, pixelColor.B);
                     imgMap.SetPixel(x, y, newColor);
                     if (j < 0)
                     {
@@ -123,17 +135,7 @@ namespace HideNSeek
                     }
 
                     bit = (textInBin[i] >> j--) & 1;
-                    newColor = Color.FromArgb(newColor.R, pixelColor.G & 0xFE + bit, pixelColor.B);
-                    imgMap.SetPixel(x, y, newColor);
-                    if (j < 0)
-                    {
-                        i++;
-                        j = 7;
-                        if (i == textInBin.Length) return;
-                    }
-
-                    bit = (textInBin[i] >> j--) & 1;
-                    newColor = Color.FromArgb(newColor.R, newColor.G, pixelColor.B & 0xFE + bit);
+                    newColor = Color.FromArgb(newColor.R, newColor.G, (pixelColor.B & 0xFE) + bit);
                     imgMap.SetPixel(x, y, newColor);
                     if (j < 0)
                     {
@@ -162,6 +164,7 @@ namespace HideNSeek
 
             // now the user selects no image
             imgPath = "";
+            imgMap = null;
             status.Text = "Waiting for input...";
         }
         
@@ -177,31 +180,44 @@ namespace HideNSeek
                     if (i == textInBin.Length) return;
                     
                     Color pixelColor = imgMap.GetPixel(x, y);
-
+                    
                     sum += (pixelColor.R & 1) * mask[j--];
-                    if(j < 0)
+                    Console.WriteLine(sum);
+                    if (j < 0)
                     {
                         j = 7;
                         textInBin[i++] = (byte)sum;
+                        if (sum == 62) return;
                         sum = 0;
                     }
                     sum += (pixelColor.G & 1) * mask[j--];
+                    Console.WriteLine(sum);
                     if (j < 0)
                     {
                         j = 7;
                         textInBin[i++] = (byte)sum;
+                        if (sum == 62) return;
                         sum = 0;
                     }
                     sum += (pixelColor.B & 1) * mask[j--];
+                    Console.WriteLine(sum);
                     if (j < 0)
                     {
                         j = 7;
                         textInBin[i++] = (byte)sum;
+                        if (sum == 62) return;
                         sum = 0;
                     }
                 }
             }
             return;
+        }
+
+        private void readPixel(Color pixelColor)
+        {
+            Console.WriteLine(pixelColor.R);
+            Console.WriteLine(pixelColor.G);
+            Console.WriteLine(pixelColor.B);
         }
     }
 }
