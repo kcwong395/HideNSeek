@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HideNSeek
@@ -17,15 +12,19 @@ namespace HideNSeek
     {
         private Bitmap imgMap;
         private string imgPath;
+        private static string IV = "1234567812345678";
 
+        // default constructor
         public HideNSeek()
         {
             InitializeComponent();
         }
 
+        // application is opened with a file passing in
         public HideNSeek(string[] imgs)
         {
             InitializeComponent();
+
             string extension = Path.GetExtension(imgs[0]).ToLower();
             if (extension != ".png" && extension != ".jpg")
             {
@@ -36,6 +35,7 @@ namespace HideNSeek
                 status.Text = "File Selected: " + imgs[0];
                 imgMap = new Bitmap(imgs[0]);
                 imgPath = imgs[0];
+                textBox1.Text = "";
             }
         }
 
@@ -46,6 +46,7 @@ namespace HideNSeek
         
         private void Open_Click(object sender, EventArgs e)
         {
+            // open the file browser
             OpenFileDialog dlg = new OpenFileDialog
             {
                 Title = "Select an image",
@@ -63,9 +64,7 @@ namespace HideNSeek
                 }
                 else
                 {
-                    imgPath = dlg.FileName;
-                    status.Text = "File Selected: " + imgPath;
-                    imgMap = new Bitmap(imgPath);
+                    Reinitialize("", "File Selected: " + dlg.FileName, dlg.FileName, new Bitmap(dlg.FileName));
                 }
             }
         }
@@ -79,10 +78,60 @@ namespace HideNSeek
             }
 
             // pre-processing the hidden message
-            string plaintext = "<STR " + textBox1.Text + " END>";
-            textBox1.Text = "";
-            byte[] textInBin = Encoding.UTF8.GetBytes(plaintext);
-            
+            string rawInput = textBox1.Text;
+            string key = "";
+
+            int keySTR = rawInput.IndexOf("<KEY>");
+            if (keySTR >= 0)
+            {
+                int keyEND = rawInput.IndexOf("<ENDKEY>");
+                if (keyEND >= 0)
+                {
+                    key = rawInput.Substring(keySTR + 5, keyEND - (keySTR + 5));
+                    rawInput = rawInput.Remove(keySTR, keyEND + 8 - keySTR);
+                }
+            }
+            /*
+            int idxSTR = rawInput.IndexOf("<IDX>");
+            if (idxSTR >= 0)
+            {
+                int idxEND = rawInput.IndexOf("ENDIDX");
+                if(idxEND >= 0)
+                {
+                    string tmp = rawInput.Substring(idxSTR + 5, idxEND - (idxSTR + 5));
+                    int.TryParse(tmp, out index);
+                    rawInput = rawInput.Substring(idxSTR + 5, idxEND + 8 - idxSTR);
+                }
+            }
+            */
+            byte[] textInBin;
+
+            if (!(string.IsNullOrEmpty(key)))
+            {
+                using (Aes myAes = Aes.Create())
+                {
+                    // Encrypt the string to an array of bytes.
+                    byte[] plainByte = Crypto.EncryptStringToBytes_Aes(rawInput, Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(IV));
+                    byte[] str = Encoding.UTF8.GetBytes("<STR>");
+                    byte[] end = Encoding.UTF8.GetBytes("<END>");
+                    textInBin = new byte[str.Length + plainByte.Length + end.Length];
+                    System.Buffer.BlockCopy(str, 0, textInBin, 0, str.Length);
+                    System.Buffer.BlockCopy(plainByte, 0, textInBin, str.Length, plainByte.Length);
+                    System.Buffer.BlockCopy(end, 0, textInBin, end.Length + plainByte.Length, end.Length);
+                }
+            }
+            else
+            {
+                string plaintext = "<STR>" + rawInput + "<END>";
+                textInBin = Encoding.UTF8.GetBytes(plaintext);
+            }
+
+            foreach(byte b in textInBin)
+            {
+                Console.WriteLine(b);
+            }
+            Console.WriteLine("end");
+
             // ensure that the photo has enough space for the message
             if (textInBin.Length > (imgMap.Width * imgMap.Height * 3) / 8.0)
             {
@@ -98,9 +147,7 @@ namespace HideNSeek
             imgMap.Save(newPath, ImageFormat.Png);
 
             // now the user selects no image
-            imgPath = "";
-            imgMap = null;
-            status.Text = "Waiting for input...";
+            Reinitialize("", "Waiting for input...", "", null);
         }
 
         private void InsertMsg(byte[] textInBin, Bitmap imgMap)
@@ -115,7 +162,6 @@ namespace HideNSeek
                     Color pixelColor = imgMap.GetPixel(x, y);
                     
                     int bit = (textInBin[i] >> j--) & 1;
-                    Console.WriteLine((pixelColor.R & 0xFE) + bit);
                     Color newColor = Color.FromArgb((pixelColor.R & 0xFE) + bit, pixelColor.G, pixelColor.B);
                     if (j < 0)
                     {
@@ -154,70 +200,95 @@ namespace HideNSeek
                 return;
             }
 
-            byte[] textInBin = new byte[(int)Math.Ceiling((imgMap.Width * imgMap.Height * 3) / 8.0)];
-
-            ExtractMsg(textInBin, imgMap);
+            string key = textBox1.Text;
+            byte[] tmp = new byte[(int)Math.Ceiling((imgMap.Width * imgMap.Height * 3) / 8.0)];
             
-            string plaintext = Encoding.UTF8.GetString(textInBin);
+            byte[] textInBin = new byte[ExtractMsg(tmp, imgMap)];
+            Array.Copy(tmp, textInBin, textInBin.Length);
 
-            textBox1.Text = plaintext;
 
+            foreach (byte b in textInBin)
+            {
+                Console.WriteLine(b);
+            }
+            Console.WriteLine("end");
+
+            string plaintext = "";
+
+            if (!(string.IsNullOrEmpty(key)))
+            {
+                using (Aes myAes = Aes.Create())
+                {
+                    // Decrypt the bytes to a string.
+                    plaintext = Crypto.DecryptStringFromBytes_Aes(textInBin, Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(IV));
+                }
+            }
+            else
+            {
+                plaintext = Encoding.UTF8.GetString(textInBin);
+            }
+            
             // now the user selects no image
-            imgPath = "";
-            imgMap = null;
-            status.Text = "Waiting for input...";
+            Reinitialize(plaintext, "Waiting for input...", "", null);
         }
         
-        private void ExtractMsg(byte[] textInBin, Bitmap imgMap)
+        private int ExtractMsg(byte[] textInBin, Bitmap imgMap)
         {
-            int i = 0, j = 7;
+            byte[] str = { 60, 83, 84, 82, 62 };
+            byte[] end = { 60, 69, 78, 68, 62 };
+            byte[] tmp = new byte[5];
+            bool STR = false, END = false;
+            int i = 0, j = 7, k = 0;
             int[] mask = { 1, 2, 4, 8, 16, 32, 64, 128 };
             int sum = 0;
             for (int x = 0; x < imgMap.Width; x++)
             {
                 for (int y = 0; y < imgMap.Height; y++)
                 {
-                    if (i == textInBin.Length) return;
+                    if (i == textInBin.Length) return i;
                     
                     Color pixelColor = imgMap.GetPixel(x, y);
                     
                     sum += (pixelColor.R & 1) * mask[j--];
-                    Console.WriteLine(sum);
                     if (j < 0)
                     {
                         j = 7;
-                        textInBin[i++] = (byte)sum;
-                        if (sum == 62) return;
+                        if (STR && sum == 60) return i;
+                        if (STR) textInBin[i++] = (byte)sum;
+                        if (sum == 62) STR = true;
                         sum = 0;
                     }
+
                     sum += (pixelColor.G & 1) * mask[j--];
-                    Console.WriteLine(sum);
                     if (j < 0)
                     {
                         j = 7;
-                        textInBin[i++] = (byte)sum;
-                        if (sum == 62) return;
+                        if (STR && sum == 60) return i;
+                        if (STR) textInBin[i++] = (byte)sum;
+                        if (sum == 62) STR = true;
                         sum = 0;
                     }
+
                     sum += (pixelColor.B & 1) * mask[j--];
-                    Console.WriteLine(sum);
                     if (j < 0)
                     {
                         j = 7;
-                        textInBin[i++] = (byte)sum;
-                        if (sum == 62) return;
+                        if (STR && sum == 60) return i;
+                        if (STR) textInBin[i++] = (byte)sum;
+                        if (sum == 62) STR = true;
                         sum = 0;
                     }
                 }
             }
-            return;
+            return i;
         }
 
-        private void readPixel(Color pixelColor)
+        private void Reinitialize(string textBoxInput, string statusInput, string imgPathInput, Bitmap imgMapInput)
         {
-            Console.WriteLine(pixelColor.R);
-            Console.WriteLine(pixelColor.G);
-            Console.WriteLine(pixelColor.B);
+            textBox1.Text = textBoxInput;
+            status.Text = statusInput;
+            imgPath = imgPathInput;
+            imgMap = imgMapInput;
         }
     }
 }
