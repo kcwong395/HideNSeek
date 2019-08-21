@@ -15,7 +15,7 @@ A steganography tool to hide messages in an image
 
 It is always difficult to transmit messages in an unsecure environment. Some suggest using Encryption while some say steganography. This application is a common type of steganographic skill which allow the user to embed a piece of message into an image. When receiving the image, another user can extract the message back.
 
-To enhance the confidenciality, this tool combines steganography and encryption. A user can insert a key and the tool will encrypt the message before inserting the message into the targeted image.
+To enhance the confidentiality, this tool combines steganography and encryption. A user can insert a key and the tool will encrypt the message before inserting the message into the targeted image.
 
 ## Install
 
@@ -36,7 +36,7 @@ For Senders:
 
 For Receivers:
 3. Click the button **Seek**
-4. Type the key to decrypte the ciperher text extracted (Ignore this step if encryption is not implemented)
+4. Type the key to decrypt the ciphertext extracted (Ignore this step if encryption is not implemented)
 5. The hidden message will be extracted and displayed at the text box
 
 Default mode:
@@ -44,9 +44,11 @@ In default mode, no encryption will be implemented.
 
 Encryption mode:
 To enable encryption mode, the senders have to type in the key in addition to the message following this syntax:
-> <KEY>'a key with a size of 256'<ENDKEY>'the message you hope to pass'
+
+> \<KEY>'a key with a size of 256'\<ENDKEY>'the message you hope to pass'
 >
-> ie. <KEY>abcdefghijklmnopqrstuvwxyzabcdef<ENDKEY>pls hide this message for me
+> ie. \<KEY>abcdefghijklmnopqrstuvwxyzabcdef\<ENDKEY>pls hide this message for me
+
 On the other hand, the receiver simply needs to input the key without any tags
 
 ## Maintainers
