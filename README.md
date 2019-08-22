@@ -20,6 +20,7 @@ To enhance the confidentiality, this tool combines steganography and encryption.
 ## Install
 
 Git Clone this project, you should be able to find an exe file in the HideNSeek\bin\Debug folder
+
 Open it and you should be able to see the following interface:
 
 <img src="img_for_readme/cover.PNG" alt="cover icon" />
