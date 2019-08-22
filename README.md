@@ -50,7 +50,7 @@ Encryption mode:
 
 To enable encryption mode, the senders have to type in the key in addition to the message following this syntax:
 
-> \<KEY>'a key with a size of 256'\<ENDKEY>'the message you hope to pass'
+> \<KEY>key\<ENDKEY>the message you hope to pass
 >
 > ie. \<KEY>abcdefghijklmnopqrstuvwxyzabcdef\<ENDKEY>pls hide this message for me
 
