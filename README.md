@@ -42,19 +42,53 @@ For Receivers:
 4. Type the key to decrypt the ciphertext extracted (Ignore this step if encryption is not implemented)
 5. The hidden message will be extracted and displayed at the text box
 
-Default mode:
+
+
+**1. Default mode:**
 
 In default mode, no encryption will be implemented.
 
-Encryption mode:
+
+
+**2. Encryption mode:**
 
 To enable encryption mode, the senders have to type in the key in addition to the message following this syntax:
 
+> Insertion:
+>
 > \<KEY>key\<ENDKEY>the message you hope to pass
 >
-> ie. \<KEY>abcdefghijklmnopqrstuvwxyzabcdef\<ENDKEY>pls hide this message for me
+> ie. \<KEY>EncryptionIsFun\<ENDKEY>pls hide this message for me
+>
+>
+>
+> Extraction:
+>
+> \<KEY>key\<ENDKEY>
+>
+> ie. \<KEY>EncryptionIsFun\<ENDKEY>
 
-On the other hand, the receiver simply needs to input the key without any tags
+
+
+**3. Index mode:**
+
+In this mode, users can define the starting pixel and the increment of each operation
+
+>  Insertion:
+>
+> \<IDX>x,y,increment x, increment y<ENDIDX>the message you hope to pass
+>
+> ie. \<IDX>18,24,7,4\<ENDIDX>pls hide this message for me
+>
+>
+>
+> Extraction:
+>
+> \<IDX>x,y,increment x, increment y\<ENDIDX>
+>
+> ie. \<IDX>18,24,7,4\<ENDIDX>
+
+
 
 ## Maintainers
 

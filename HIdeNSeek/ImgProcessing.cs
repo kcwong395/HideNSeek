@@ -5,7 +5,7 @@ namespace HideNSeek
 {
     class ImgProcessing
     {
-        public static void InsertMsg(byte[] textInByte, Bitmap imgMap)
+        public static void InsertByte(byte[] textInByte, Bitmap imgMap, int[] indexList)
         {
             /*
             // ensure that the photo has enough space for the message
@@ -15,17 +15,16 @@ namespace HideNSeek
                 return;
             }
             */
-            Console.WriteLine("str");
+
             foreach(byte b in textInByte)
             {
                 Console.WriteLine(b);
             }
-            Console.WriteLine("end");
 
             int i = 0, j = 7;
-            for (int x = 0; x < imgMap.Width; x++)
+            for (int x = indexList[0]; x < imgMap.Width; x += indexList[2])
             {
-                for (int y = 0; y < imgMap.Height; y++)
+                for (int y = indexList[1]; y < imgMap.Height; y += indexList[3])
                 {
                     if (i == textInByte.Length) return;
 
@@ -66,8 +65,9 @@ namespace HideNSeek
         /*
             Input:  the image map generated from the image selected and the prepossed text input
         */
-        public static byte[] ExtractByte(Bitmap imgMap)
+        public static byte[] ExtractByte(Bitmap imgMap, int[] indexList)
         {
+
             byte[] tmp = new byte[(int)Math.Ceiling((imgMap.Width * imgMap.Height * 3) / 8.0)];
 
             byte[] str = { 60, 83, 84, 82, 62 };
@@ -76,9 +76,9 @@ namespace HideNSeek
             int i = 0, j = 7, k = 0;
             int[] mask = { 1, 2, 4, 8, 16, 32, 64, 128 };
             int sum = 0;
-            for (int x = 0; x < imgMap.Width && !END; x++)
+            for (int x = indexList[0]; x < imgMap.Width && !END; x += indexList[2])
             {
-                for (int y = 0; y < imgMap.Height && !END; y++)
+                for (int y = indexList[1]; y < imgMap.Height && !END; y += indexList[3])
                 {
                     if (i == tmp.Length)
                     {
@@ -134,8 +134,7 @@ namespace HideNSeek
 
             byte[] textInByte = new byte[i];
             Array.Copy(tmp, textInByte, textInByte.Length);
-
-            Console.WriteLine(textInByte.Length);
+            
             return textInByte;
         }
     }

@@ -24,15 +24,8 @@ namespace HideNSeek
             InitializeComponent();
 
             // only the first image will be processed
-            string extension = Path.GetExtension(imgs[0]).ToLower();
-            if (extension != ".png" && extension != ".jpg")
-            {
-                status.Text = "File Selected is not an image";
-            }
-            else
-            {
-                Reinitialize("", "File Selected: " + imgs[0], imgs[0], new Bitmap(imgs[0]));
-            }
+            // pass the selected file to check whether it is an image
+            isImg(imgs[0]);
         }
         
         private void Open_Click(object sender, EventArgs e)
@@ -46,15 +39,7 @@ namespace HideNSeek
             
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                string extension = Path.GetExtension(dlg.FileName).ToLower();
-                if (extension != ".png" && extension != ".jpg")
-                {
-                    status.Text = "Error: File selected is not an image";
-                }
-                else
-                {
-                    Reinitialize("", "File Selected: " + dlg.FileName, dlg.FileName, new Bitmap(dlg.FileName));
-                }
+                isImg(dlg.FileName);
             }
         }
 
@@ -67,11 +52,8 @@ namespace HideNSeek
                 return;
             }
 
-            // prepossing the input
-            byte[] textInByte = TextProcessing.HideInput(textBox1.Text);
-
-            // insert the hidden message
-            ImgProcessing.InsertMsg(textInByte, imgMap);
+            // prepossing the input and insert the message
+            TextProcessing.InsertMsg(textBox1.Text, imgMap);
 
             // save the picture with hidden message
             string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";
@@ -87,15 +69,28 @@ namespace HideNSeek
             {
                 return;
             }
-            
-            byte[] textInByte = ImgProcessing.ExtractByte(imgMap);
-            
-            string plaintext = TextProcessing.SeekOutput(textBox1.Text, textInByte);
+
+            // process the input and extract the message
+            string plaintext = TextProcessing.ExtractMsg(textBox1.Text, imgMap);
 
             // now the user selects no image
             Reinitialize(plaintext, "Waiting for input...", "", null);
         }
 
+        private void isImg(string path)
+        {
+            string extension = Path.GetExtension(path).ToLower();
+            if (extension != ".png" && extension != ".jpg")
+            {
+                status.Text = "Error: File selected is not an image";
+            }
+            else
+            {
+                Reinitialize("", "File Selected: " + path, path, new Bitmap(path));
+            }
+        }
+
+        // this functio controls the output, content of bitmap and the image path
         private void Reinitialize(string textBoxInput, string statusInput, string imgPathInput, Bitmap imgMapInput)
         {
             textBox1.Text = textBoxInput;
