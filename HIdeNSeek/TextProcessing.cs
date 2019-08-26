@@ -7,25 +7,29 @@ namespace HideNSeek
 {
     class TextProcessing
     {
+        // IV for AES encryption
         private static string IV = "1234567812345678";
 
-        public static void InsertMsg(string rawInput, Bitmap imgMap)
+        public static int InsertMsg(string rawInput, Bitmap imgMap)
         {
-            // pre-processing the hidden message
+
+            // detect if a key input exist in the raw data
             string key = KeyDetect(ref rawInput);
             
+            // detect if the user input an index tag
             int[] indexList = IndexDetect(ref rawInput);
-
-            Console.WriteLine(rawInput);
 
             byte[] textInByte;
 
+            // if the user inputs a key, encrypted the text input
             if (!string.IsNullOrEmpty(key))
             {
                 using (Aes myAes = Aes.Create())
                 {
+                    // the key input might not be 256 bits which is required by the AES standard
+                    // therefore, it is important to hash the key into a 256 bits long input
                     key = Crypto.Sha256Hash(key);
-                    Console.WriteLine(Encoding.ASCII.GetBytes(key).Length);
+
                     // Encrypt the string to an array of bytes.
                     byte[] plainByte = Crypto.EncryptStringToBytes_Aes(rawInput, Encoding.ASCII.GetBytes(key), Encoding.UTF8.GetBytes(IV));
                     byte[] str = Encoding.UTF8.GetBytes("<STR>");
@@ -38,11 +42,23 @@ namespace HideNSeek
             }
             else
             {
+                // prolong the plaintext with the header
                 string plaintext = "<STR>" + rawInput + "<END>";
                 textInByte = Encoding.UTF8.GetBytes(plaintext);
             }
 
-            ImgProcessing.InsertByte(textInByte, imgMap, indexList);
+            long availableWidth = (imgMap.Width - indexList[1]) / indexList[3];
+            long availableHeight = (imgMap.Height - indexList[0]) / indexList[2];
+            long availableSpace = (availableWidth + availableHeight) * (indexList[4] + indexList[5] + indexList[6]);
+            if (availableSpace >= textInByte.Length * 8 && availableHeight > 0 && availableWidth > 0)
+            {
+                ImgProcessing.InsertByte(textInByte, imgMap, indexList);
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
 
         }
 
@@ -91,7 +107,8 @@ namespace HideNSeek
 
         private static int[] IndexDetect(ref string rawInput)
         {
-            int[] indexList = { 0, 0, 1, 1 };
+            // x, y, increment x, increment y, R enable, G enable, B enable
+            int[] indexList = { 0, 0, 1, 1, 1, 1, 1 };
             int index = 0;
 
             int idxSTR = rawInput.IndexOf("<IDX>");

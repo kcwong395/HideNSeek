@@ -10,7 +10,6 @@ namespace HideNSeek
     {
         private Bitmap imgMap;
         private string imgPath;
-        private static string IV = "1234567812345678";
 
         // default constructor
         public HideNSeek()
@@ -53,7 +52,12 @@ namespace HideNSeek
             }
 
             // prepossing the input and insert the message
-            TextProcessing.InsertMsg(textBox1.Text, imgMap);
+            int insertLog = TextProcessing.InsertMsg(textBox1.Text, imgMap);
+            if (insertLog == 0)
+            {
+                Reinitialize("", "Error: Not enough space for insertion", "", null);
+                return;
+            }
 
             // save the picture with hidden message
             string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";

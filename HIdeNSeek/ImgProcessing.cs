@@ -5,21 +5,11 @@ namespace HideNSeek
 {
     class ImgProcessing
     {
+        /*
+            Input:  receive the encoded msg, image map generated and indexList 
+        */
         public static void InsertByte(byte[] textInByte, Bitmap imgMap, int[] indexList)
         {
-            /*
-            // ensure that the photo has enough space for the message
-            if (textInByte.Length > (imgMap.Width * imgMap.Height * 3) / 8.0)
-            {
-                status.Text = "Not Enough Space";
-                return;
-            }
-            */
-
-            foreach(byte b in textInByte)
-            {
-                Console.WriteLine(b);
-            }
 
             int i = 0, j = 7;
             for (int x = indexList[0]; x < imgMap.Width; x += indexList[2])
@@ -30,44 +20,55 @@ namespace HideNSeek
 
                     Color pixelColor = imgMap.GetPixel(x, y);
 
-                    int bit = (textInByte[i] >> j--) & 1;
-                    Color newColor = Color.FromArgb((pixelColor.R & 0xFE) + bit, pixelColor.G, pixelColor.B);
-                    if (j < 0)
+                    if (indexList[4] == 1)
                     {
-                        i++;
-                        j = 7;
-                        if (i == textInByte.Length) return;
+                        int bit = (textInByte[i] >> j--) & 1;
+                        pixelColor = Color.FromArgb((pixelColor.R & 0xFE) + bit, pixelColor.G, pixelColor.B);
+                        if (j < 0)
+                        {
+                            i++;
+                            j = 7;
+                            if (i == textInByte.Length) return;
+                        }
                     }
 
-                    bit = (textInByte[i] >> j--) & 1;
-                    newColor = Color.FromArgb(newColor.R, (pixelColor.G & 0xFE) + bit, pixelColor.B);
-                    imgMap.SetPixel(x, y, newColor);
-                    if (j < 0)
+                    if (indexList[5] == 1)
                     {
-                        i++;
-                        j = 7;
-                        if (i == textInByte.Length) return;
+                        int bit = (textInByte[i] >> j--) & 1;
+                        pixelColor = Color.FromArgb(pixelColor.R, (pixelColor.G & 0xFE) + bit, pixelColor.B);
+                        if (j < 0)
+                        {
+                            i++;
+                            j = 7;
+                            if (i == textInByte.Length) return;
+                        }
                     }
 
-                    bit = (textInByte[i] >> j--) & 1;
-                    newColor = Color.FromArgb(newColor.R, newColor.G, (pixelColor.B & 0xFE) + bit);
-                    imgMap.SetPixel(x, y, newColor);
-                    if (j < 0)
+                    if(indexList[6] == 1)
                     {
-                        i++;
-                        j = 7;
-                        if (i == textInByte.Length) return;
+                        int bit = (textInByte[i] >> j--) & 1;
+                        pixelColor = Color.FromArgb(pixelColor.R, pixelColor.G, (pixelColor.B & 0xFE) + bit);
+                        if (j < 0)
+                        {
+                            i++;
+                            j = 7;
+                            if (i == textInByte.Length) return;
+                        }
                     }
+
+                    imgMap.SetPixel(x, y, pixelColor);
+
                 }
             }
         }
 
         /*
-            Input:  the image map generated from the image selected and the prepossed text input
+            Input:  the image map generated from the image selected and the indexList
+            Return: the extract msg in byte format
         */
         public static byte[] ExtractByte(Bitmap imgMap, int[] indexList)
         {
-
+            
             byte[] tmp = new byte[(int)Math.Ceiling((imgMap.Width * imgMap.Height * 3) / 8.0)];
 
             byte[] str = { 60, 83, 84, 82, 62 };
@@ -88,53 +89,62 @@ namespace HideNSeek
 
                     Color pixelColor = imgMap.GetPixel(x, y);
 
-                    sum += (pixelColor.R & 1) * mask[j--];
-                    if (j < 0)
+                    if (indexList[4] == 1)
                     {
-                        j = 7;
-                        if (STR && sum == 60)
+                        sum += (pixelColor.R & 1) * mask[j--];
+                        if (j < 0)
                         {
-                            END = true;
-                            break;
+                            j = 7;
+                            if (STR && sum == 60)
+                            {
+                                END = true;
+                                break;
+                            }
+                            if (STR) tmp[i++] = (byte)sum;
+                            if (sum == 62) STR = true;
+                            sum = 0;
                         }
-                        if (STR) tmp[i++] = (byte)sum;
-                        if (sum == 62) STR = true;
-                        sum = 0;
                     }
 
-                    sum += (pixelColor.G & 1) * mask[j--];
-                    if (j < 0)
+                    if (indexList[5] == 1)
                     {
-                        j = 7;
-                        if (STR && sum == 60)
+                        sum += (pixelColor.G & 1) * mask[j--];
+                        if (j < 0)
                         {
-                            END = true;
-                            break;
+                            j = 7;
+                            if (STR && sum == 60)
+                            {
+                                END = true;
+                                break;
+                            }
+                            if (STR) tmp[i++] = (byte)sum;
+                            if (sum == 62) STR = true;
+                            sum = 0;
                         }
-                        if (STR) tmp[i++] = (byte)sum;
-                        if (sum == 62) STR = true;
-                        sum = 0;
                     }
 
-                    sum += (pixelColor.B & 1) * mask[j--];
-                    if (j < 0)
+                    if (indexList[6] == 1)
                     {
-                        j = 7;
-                        if (STR && sum == 60)
+                        sum += (pixelColor.B & 1) * mask[j--];
+                        if (j < 0)
                         {
-                            END = true;
-                            break;
+                            j = 7;
+                            if (STR && sum == 60)
+                            {
+                                END = true;
+                                break;
+                            }
+                            if (STR) tmp[i++] = (byte)sum;
+                            if (sum == 62) STR = true;
+                            sum = 0;
                         }
-                        if (STR) tmp[i++] = (byte)sum;
-                        if (sum == 62) STR = true;
-                        sum = 0;
                     }
                 }
             }
-
+            
             byte[] textInByte = new byte[i];
             Array.Copy(tmp, textInByte, textInByte.Length);
-            
+
             return textInByte;
         }
     }
