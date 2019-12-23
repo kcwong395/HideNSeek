@@ -30,7 +30,7 @@ namespace HideNSeek
             }
             else
             {
-                status.Text = "Error: Image selected is not supported";
+                MessageBox.Show("Error: This image is not supported", "Alert");
             }
         }
         
@@ -51,7 +51,7 @@ namespace HideNSeek
                 }
                 else
                 {
-                    status.Text = "Error: Image selected is not supported";
+                    MessageBox.Show("Error: This image is not supported", "Alert");
                 }
             }
         }
@@ -61,7 +61,7 @@ namespace HideNSeek
             // check if any file is selected
             if(string.IsNullOrEmpty(imgPath))
             {
-                status.Text = "Error: No file is selected";
+                MessageBox.Show("Error: No file is selected", "Alert");
                 return;
             }
 
@@ -69,14 +69,15 @@ namespace HideNSeek
             int insertLog = TextProcessing.InsertMsg(textBox1.Text, imgMap);
             if (insertLog == 0)
             {
-                Reinitialize("", "Error: Not enough space for insertion", "", null);
+                MessageBox.Show("Error: Not enough space for insertion", "Alert");
                 return;
             }
-
-            // save the picture with hidden message
-            string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";
-            imgMap.Save(newPath, ImageFormat.Png);
-
+            else
+            {
+                // save the picture with hidden message
+                string newPath = Directory.GetParent(imgPath).ToString() + '/' + Path.GetFileNameWithoutExtension(imgPath) + "_copy.png";
+                imgMap.Save(newPath, ImageFormat.Png);
+            }
             // reinitialize the output text and deselect the image
             Reinitialize("", "Waiting for input...", "", null);
         }
