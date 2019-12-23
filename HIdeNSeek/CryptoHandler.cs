@@ -22,10 +22,10 @@ namespace HideNSeek
             // with the specified key and IV.
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = Key;
-                aesAlg.IV = IV;
                 aesAlg.Mode = CipherMode.CBC;
-                aesAlg.Padding = PaddingMode.PKCS7;
+                aesAlg.Padding = PaddingMode.Zeros;
+                aesAlg.Key = Sha256Hash(Key);
+                aesAlg.IV = IV;
 
                 // Create an encryptor to perform the stream transform.
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
@@ -69,10 +69,10 @@ namespace HideNSeek
             // with the specified key and IV.
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = Key;
-                aesAlg.IV = IV;
                 aesAlg.Mode = CipherMode.CBC;
-                aesAlg.Padding = PaddingMode.PKCS7;
+                aesAlg.Padding = PaddingMode.Zeros;
+                aesAlg.Key = Sha256Hash(Key);
+                aesAlg.IV = IV;
                 
                 // Create a decryptor to perform the stream transform.
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
@@ -97,12 +97,10 @@ namespace HideNSeek
 
         }
 
-        public static string Sha256Hash(string rawData)
+        private static byte[] Sha256Hash(byte[] rawKey)
         {
             SHA256 sha256 = new SHA256CryptoServiceProvider();
-            byte[] source = Encoding.ASCII.GetBytes(rawData);
-            byte[] crypto = sha256.ComputeHash(source);
-            return Encoding.ASCII.GetString(crypto);
+            return sha256.ComputeHash(rawKey);
         }
 
     }

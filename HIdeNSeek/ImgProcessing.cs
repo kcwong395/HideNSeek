@@ -25,7 +25,6 @@ namespace HideNSeek
         */
         public static void InsertByte(byte[] textInByte, Bitmap imgMap, int[] indexList)
         {
-
             int i = 0, j = 7;
             for (int x = indexList[0]; x < imgMap.Width; x += indexList[2])
             {
@@ -43,7 +42,11 @@ namespace HideNSeek
                         {
                             i++;
                             j = 7;
-                            if (i == textInByte.Length) return;
+                            if (i == textInByte.Length)
+                            {
+                                imgMap.SetPixel(x, y, pixelColor);
+                                return;
+                            }
                         }
                     }
 
@@ -55,7 +58,11 @@ namespace HideNSeek
                         {
                             i++;
                             j = 7;
-                            if (i == textInByte.Length) return;
+                            if (i == textInByte.Length)
+                            {
+                                imgMap.SetPixel(x, y, pixelColor);
+                                return;
+                            }
                         }
                     }
 
@@ -67,12 +74,15 @@ namespace HideNSeek
                         {
                             i++;
                             j = 7;
-                            if (i == textInByte.Length) return;
+                            if (i == textInByte.Length)
+                            {
+                                imgMap.SetPixel(x, y, pixelColor); 
+                                return;
+                            }
                         }
                     }
 
                     imgMap.SetPixel(x, y, pixelColor);
-
                 }
             }
         }
@@ -83,7 +93,6 @@ namespace HideNSeek
         */
         public static byte[] ExtractByte(Bitmap imgMap, int[] indexList)
         {
-            
             byte[] tmp = new byte[(int)Math.Ceiling((imgMap.Width * imgMap.Height * 3) / 8.0)];
 
             byte[] str = { 60, 83, 84, 82, 62 };
@@ -156,7 +165,7 @@ namespace HideNSeek
                     }
                 }
             }
-            
+
             byte[] textInByte = new byte[i];
             Array.Copy(tmp, textInByte, textInByte.Length);
 
