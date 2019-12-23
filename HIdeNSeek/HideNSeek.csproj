@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ImgProcessing.cs" />
-    <Compile Include="Crypto.cs" />
+    <Compile Include="CryptoHandler.cs" />
     <Compile Include="Entry.cs" />
     <Compile Include="HideNSeek.cs">
       <SubType>Form</SubType>

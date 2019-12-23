@@ -17,14 +17,21 @@ namespace HideNSeek
             InitializeComponent();
         }
 
-        // application is opened with a file passing in
+        // application is opened with file(s) passing in
         public HideNSeek(string[] imgs)
         {
             InitializeComponent();
 
             // only the first image will be processed
             // pass the selected file to check whether it is an image
-            isImg(imgs[0]);
+            if (ImgProcessing.isImg(imgs[0]))
+            {
+                Reinitialize("", "File Selected: " + imgs[0], imgs[0], new Bitmap(imgs[0]));
+            }
+            else
+            {
+                status.Text = "Error: Image selected is not supported";
+            }
         }
         
         private void Open_Click(object sender, EventArgs e)
@@ -38,7 +45,14 @@ namespace HideNSeek
             
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                isImg(dlg.FileName);
+                if (ImgProcessing.isImg(dlg.FileName))
+                {
+                    Reinitialize("", "File Selected: " + dlg.FileName, dlg.FileName, new Bitmap(dlg.FileName));
+                }
+                else
+                {
+                    status.Text = "Error: Image selected is not supported";
+                }
             }
         }
 
@@ -81,20 +95,7 @@ namespace HideNSeek
             Reinitialize(plaintext, "Waiting for input...", "", null);
         }
 
-        private void isImg(string path)
-        {
-            string extension = Path.GetExtension(path).ToLower();
-            if (extension != ".png" && extension != ".jpg")
-            {
-                status.Text = "Error: File selected is not an image";
-            }
-            else
-            {
-                Reinitialize("", "File Selected: " + path, path, new Bitmap(path));
-            }
-        }
-
-        // this functio controls the output, content of bitmap and the image path
+        // this function controls the output, content of bitmap and the image path
         private void Reinitialize(string textBoxInput, string statusInput, string imgPathInput, Bitmap imgMapInput)
         {
             textBox1.Text = textBoxInput;
@@ -107,6 +108,5 @@ namespace HideNSeek
         {
 
         }
-
     }
 }

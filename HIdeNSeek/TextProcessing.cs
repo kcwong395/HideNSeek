@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace HideNSeek
 {
@@ -12,12 +14,11 @@ namespace HideNSeek
 
         public static int InsertMsg(string rawInput, Bitmap imgMap)
         {
-
             // detect if a key input exist in the raw data
-            string key = KeyDetect(ref rawInput);
+            string key = KeyExtract(rawInput);
             
             // detect if the user input an index tag
-            int[] indexList = IndexDetect(ref rawInput);
+            int[] indexList = IndexExtract(rawInput);
 
             byte[] textInByte;
 
@@ -28,10 +29,10 @@ namespace HideNSeek
                 {
                     // the key input might not be 256 bits which is required by the AES standard
                     // therefore, it is important to hash the key into a 256 bits long input
-                    key = Crypto.Sha256Hash(key);
+                    key = CryptoHandler.Sha256Hash(key);
 
                     // Encrypt the string to an array of bytes.
-                    byte[] plainByte = Crypto.EncryptStringToBytes_Aes(rawInput, Encoding.ASCII.GetBytes(key), Encoding.UTF8.GetBytes(IV));
+                    byte[] plainByte = CryptoHandler.EncryptStringToBytes_Aes(rawInput, Encoding.ASCII.GetBytes(key), Encoding.UTF8.GetBytes(IV));
                     byte[] str = Encoding.UTF8.GetBytes("<STR>");
                     byte[] end = Encoding.UTF8.GetBytes("<END>");
                     textInByte = new byte[str.Length + plainByte.Length + end.Length];
@@ -65,9 +66,9 @@ namespace HideNSeek
         public static string ExtractMsg(string rawInput, Bitmap imgMap)
         {
             // pre-processing the hidden message
-            string key = KeyDetect(ref rawInput);
+            string key = KeyExtract(rawInput);
             
-            int[] indexList = IndexDetect(ref rawInput);
+            int[] indexList = IndexExtract(rawInput);
             
             byte[] textInByte = ImgProcessing.ExtractByte(imgMap, indexList);
 
@@ -75,9 +76,9 @@ namespace HideNSeek
             {
                 using (Aes myAes = Aes.Create())
                 {
-                    key = Crypto.Sha256Hash(key);
+                    key = CryptoHandler.Sha256Hash(key);
                     // Decrypt the bytes to a string.
-                    return Crypto.DecryptStringFromBytes_Aes(textInByte, Encoding.ASCII.GetBytes(key), Encoding.UTF8.GetBytes(IV));
+                    return CryptoHandler.DecryptStringFromBytes_Aes(textInByte, Encoding.ASCII.GetBytes(key), Encoding.UTF8.GetBytes(IV));
                 }
             }
             else
@@ -86,53 +87,36 @@ namespace HideNSeek
             }
         }
 
-        private static string KeyDetect(ref string rawInput)
+        // return key value user inputed
+        private static string KeyExtract(string rawInput)
         {
-            string key = "";
-
-            int keySTR = rawInput.IndexOf("<KEY>");
-            if (keySTR >= 0)
-            {
-                int keyEND = rawInput.IndexOf("<ENDKEY>");
-                if (keyEND >= 0)
-                {
-                    key = rawInput.Substring(keySTR + 5, keyEND - (keySTR + 5));
-                    rawInput = rawInput.Remove(keySTR, keyEND + 8 - keySTR);
-                }
-            }
-
-            return key;
-
+            return new Regex(@"(?<=<KEY>)\w+(?=<KEY>)", RegexOptions.Compiled | RegexOptions.IgnoreCase).Match(rawInput).Groups[0].ToString();
         }
 
-        private static int[] IndexDetect(ref string rawInput)
+        // return index value user inputed
+        private static int[] IndexExtract(string rawInput)
         {
             // x, y, increment x, increment y, R enable, G enable, B enable
             int[] indexList = { 0, 0, 1, 1, 1, 1, 1 };
-            int index = 0;
 
-            int idxSTR = rawInput.IndexOf("<IDX>");
-            if (idxSTR >= 0)
+            // reduce ...<IDX>[0-9,]*<IDX>... to [0-9,]*<IDX>
+            string indexText = new Regex(@"(?<=<IDX>)[0-9,]*<IDX>", RegexOptions.Compiled | RegexOptions.IgnoreCase).Match(rawInput).Groups[0].ToString();
+
+            // reduce <IDX>[0-9,]*<IDX> to array of [0-9]
+            MatchCollection matches = new Regex(@"\d+(?=,)|\d+(?=<IDX>)", RegexOptions.Compiled | RegexOptions.IgnoreCase).Matches(indexText);
+            if (matches.Count != indexList.Length)
             {
-                int idxEND = rawInput.IndexOf("<ENDIDX>");
-                if (idxEND >= 0)
+                MessageBox.Show("Num of Index is not correct, index input will remain in default mode", "alert");
+            }
+            else
+            {
+                for (int i = 0; i < indexList.Length; i++)
                 {
-                    string indexInput = rawInput.Substring(idxSTR + 5, idxEND - (idxSTR + 5));
-                    int commaIndex = indexInput.IndexOf(',');
-                    while (commaIndex > 0)
-                    {
-                        string num = indexInput.Substring(0, commaIndex);
-                        int.TryParse(num, out indexList[index++]);
-                        indexInput = indexInput.Substring(commaIndex + 1, indexInput.Length - (num.Length + 1));
-                        commaIndex = indexInput.IndexOf(',');
-                    }
-                    int.TryParse(indexInput.Substring(0, indexInput.Length), out indexList[index++]);
-                    rawInput = rawInput.Remove(idxSTR, idxEND + 8 - idxSTR);
+                    indexList[i] = int.Parse(matches[i].Groups[0].ToString());
+                    Console.WriteLine(indexList[i]);
                 }
             }
-
             return indexList;
-
         }
 
     }

@@ -3,7 +3,6 @@ C:\Users\Martin\Documents\HIdeNSeek\HIdeNSeek\bin\Debug\HIdeNSeek.exe
 C:\Users\Martin\Documents\HIdeNSeek\HIdeNSeek\bin\Debug\HIdeNSeek.pdb
 C:\Users\Martin\Documents\HIdeNSeek\HIdeNSeek\obj\Debug\HideNSeek.HideNSeek.resources
 C:\Users\Martin\Documents\HIdeNSeek\HIdeNSeek\obj\Debug\HideNSeek.csproj.GenerateResource.cache
-C:\Users\Martin\Documents\HIdeNSeek\HIdeNSeek\obj\Debug\HideNSeek.csproj.CoreCompileInputs.cache
 C:\Users\Martin\Documents\HIdeNSeek\HIdeNSeek\obj\Debug\HIdeNSeek.exe
 C:\Users\Martin\Documents\HIdeNSeek\HIdeNSeek\obj\Debug\HIdeNSeek.pdb
 C:\Users\Martin\Documents\HIdeNSeek\HIdeNSeek\obj\Debug\HideNSeek.csprojAssemblyReference.cache

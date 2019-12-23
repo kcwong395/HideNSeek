@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HideNSeek
 {
-    class Crypto
+    class CryptoHandler
     {
         public static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
         {

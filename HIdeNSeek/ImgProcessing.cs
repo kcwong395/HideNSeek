@@ -1,10 +1,25 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 
 namespace HideNSeek
 {
     class ImgProcessing
     {
+        public static Boolean isImg(string path)
+        {
+            string[] ImageExtensions = new string[] { ".JPG", ".JPE", ".BMP", ".GIF", ".PNG" };
+            string curExtension = Path.GetExtension(path).ToUpper();
+            foreach (string imgExtension in ImageExtensions)
+            {
+                if (curExtension.Equals(imgExtension))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /*
             Input:  receive the encoded msg, image map generated and indexList 
         */
