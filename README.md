@@ -28,13 +28,20 @@ Open it and you should be able to see the following interface:
 ## Usage
 
 1. Click the Open button
-2. Select the image you wish to process (Noted that the tool currently only supports **jpg** and **png** file)
+
+2. Select the image you wish to process
+
+   
 
 For Senders:
 
 3. Enter the desired content into the text box
+
 4. Click the button **Hide**
+
 5. Send the new image to the receiver(s)
+
+   
 
 For Receivers:
 
@@ -58,7 +65,7 @@ To enable encryption mode, the senders have to type in the key in addition to th
 >
 > \<KEY>key\<ENDKEY>the message you hope to pass
 >
-> ie. \<KEY>EncryptionIsFun\<ENDKEY>pls hide this message for me
+> ie. \<KEY>EncryptionIsFun\<KEY>pls hide this message for me
 >
 >
 >
@@ -66,7 +73,7 @@ To enable encryption mode, the senders have to type in the key in addition to th
 >
 > \<KEY>key\<ENDKEY>
 >
-> ie. \<KEY>EncryptionIsFun\<ENDKEY>
+> ie. \<KEY>EncryptionIsFun\<KEY>
 
 
 
@@ -76,17 +83,23 @@ In this mode, users can define the starting pixel and the increment of each oper
 
 >  Insertion:
 >
-> \<IDX>x,y,increment x, increment y<ENDIDX>the message you hope to pass
+>  \<IDX>x,y,increment x,increment y,R enable, G enable, B enable<ENDIDX>the message you hope to pass
 >
-> ie. \<IDX>18,24,7,4\<ENDIDX>pls hide this message for me
+>  ie. \<IDX>18,24,7,4,1,1,1\<ENDIDX>pls hide this message for me
 >
+>  
 >
+>  Extraction:
 >
-> Extraction:
+>  \<IDX>x,y,increment x, increment y,R enable, G enable, B enable\<IDX>
 >
-> \<IDX>x,y,increment x, increment y\<ENDIDX>
+>  ie. \<IDX>18,24,7,4,1,1,1\<IDX>
 >
-> ie. \<IDX>18,24,7,4\<ENDIDX>
+>  
+>
+>  There are 7 parameters, entering smaller than or equals to 7 is fine. However, if the user enters more than 7 value, the operation will be conducted with following parameters 0,0,1,1,1,1,1
+
+
 
 
 

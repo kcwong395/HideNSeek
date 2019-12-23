@@ -104,13 +104,13 @@ namespace HideNSeek
 
             // reduce <IDX>[0-9,]*<IDX> to array of [0-9]
             MatchCollection matches = new Regex(@"\d+(?=,)|\d+(?=<IDX>)", RegexOptions.Compiled | RegexOptions.IgnoreCase).Matches(indexText);
-            if (matches.Count != indexList.Length)
+            if (matches.Count > indexList.Length)
             {
                 MessageBox.Show("Num of Index is not correct, index input will remain in default mode", "alert");
             }
             else
             {
-                for (int i = 0; i < indexList.Length; i++)
+                for (int i = 0; i < matches.Count; i++)
                 {
                     indexList[i] = int.Parse(matches[i].Groups[0].ToString());
                     Console.WriteLine(indexList[i]);
