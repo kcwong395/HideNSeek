@@ -7,13 +7,17 @@ namespace HideNSeek
 {
     class CryptoHandler
     {
-        public static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
+        // IV for AES encryption
+        // TODO: modifly this to a public static function to generate IV
+        public static string IV = "1234567812345678";
+
+        public static byte[] EncryptStringToBytes_Aes(string plainText, string key, string IV)
         {
             // Check arguments.
             if (plainText == null || plainText.Length <= 0)
                 throw new ArgumentNullException("plainText");
-            if (Key == null || Key.Length <= 0)
-                throw new ArgumentNullException("Key");
+            if (key == null || key.Length <= 0)
+                throw new ArgumentNullException("key");
             if (IV == null || IV.Length <= 0)
                 throw new ArgumentNullException("IV");
             byte[] encrypted;
@@ -24,8 +28,8 @@ namespace HideNSeek
             {
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.Zeros;
-                aesAlg.Key = Sha256Hash(Key);
-                aesAlg.IV = IV;
+                aesAlg.Key = Sha256Hash(Encoding.UTF8.GetBytes(key));
+                aesAlg.IV = Encoding.UTF8.GetBytes(IV);
 
                 // Create an encryptor to perform the stream transform.
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
@@ -45,19 +49,19 @@ namespace HideNSeek
                 }
             }
 
-
+            Console.WriteLine(encrypted.Length);
             // Return the encrypted bytes from the memory stream.
             return encrypted;
 
         }
 
-        public static string DecryptStringFromBytes_Aes(byte[] cipherText, byte[] Key, byte[] IV)
+        public static string DecryptStringFromBytes_Aes(byte[] cipherText, string key, string IV)
         {
             // Check arguments.
             if (cipherText == null || cipherText.Length <= 0)
                 throw new ArgumentNullException("cipherText");
-            if (Key == null || Key.Length <= 0)
-                throw new ArgumentNullException("Key");
+            if (key == null || key.Length <= 0)
+                throw new ArgumentNullException("key");
             if (IV == null || IV.Length <= 0)
                 throw new ArgumentNullException("IV");
 
@@ -71,8 +75,8 @@ namespace HideNSeek
             {
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.Zeros;
-                aesAlg.Key = Sha256Hash(Key);
-                aesAlg.IV = IV;
+                aesAlg.Key = Sha256Hash(Encoding.UTF8.GetBytes(key));
+                aesAlg.IV = Encoding.UTF8.GetBytes(IV);
                 
                 // Create a decryptor to perform the stream transform.
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
@@ -94,7 +98,6 @@ namespace HideNSeek
             }
 
             return plaintext;
-
         }
 
         private static byte[] Sha256Hash(byte[] rawKey)

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace HideNSeek
 {
@@ -34,54 +36,35 @@ namespace HideNSeek
 
                     Color pixelColor = imgMap.GetPixel(x, y);
 
-                    if (indexList[4] == 1)
+                    for(int k = 0; k < 3; k++)
                     {
-                        int bit = (textInByte[i] >> j--) & 1;
-                        pixelColor = Color.FromArgb((pixelColor.R & 0xFE) + bit, pixelColor.G, pixelColor.B);
-                        if (j < 0)
+                        if(indexList[k + 4] == 1)
                         {
-                            i++;
-                            j = 7;
-                            if (i == textInByte.Length)
+                            int bit = (textInByte[i] >> j--) & 1;
+                            if(k + 4 == 4)
                             {
-                                imgMap.SetPixel(x, y, pixelColor);
-                                return;
+                                pixelColor = Color.FromArgb((pixelColor.R & 0xFE) + bit, pixelColor.G, pixelColor.B);
+                            }
+                            else if(k + 4 == 5)
+                            {
+                                pixelColor = Color.FromArgb(pixelColor.R, (pixelColor.G & 0xFE) + bit, pixelColor.B);
+                            }
+                            else
+                            {
+                                pixelColor = Color.FromArgb(pixelColor.R, (pixelColor.G & 0xFE) + bit, pixelColor.B);
+                            }
+                            if (j < 0)
+                            {
+                                i++;
+                                j = 7;
+                                if (i == textInByte.Length)
+                                {
+                                    imgMap.SetPixel(x, y, pixelColor);
+                                    return;
+                                }
                             }
                         }
                     }
-
-                    if (indexList[5] == 1)
-                    {
-                        int bit = (textInByte[i] >> j--) & 1;
-                        pixelColor = Color.FromArgb(pixelColor.R, (pixelColor.G & 0xFE) + bit, pixelColor.B);
-                        if (j < 0)
-                        {
-                            i++;
-                            j = 7;
-                            if (i == textInByte.Length)
-                            {
-                                imgMap.SetPixel(x, y, pixelColor);
-                                return;
-                            }
-                        }
-                    }
-
-                    if(indexList[6] == 1)
-                    {
-                        int bit = (textInByte[i] >> j--) & 1;
-                        pixelColor = Color.FromArgb(pixelColor.R, pixelColor.G, (pixelColor.B & 0xFE) + bit);
-                        if (j < 0)
-                        {
-                            i++;
-                            j = 7;
-                            if (i == textInByte.Length)
-                            {
-                                imgMap.SetPixel(x, y, pixelColor); 
-                                return;
-                            }
-                        }
-                    }
-
                     imgMap.SetPixel(x, y, pixelColor);
                 }
             }
@@ -95,22 +78,13 @@ namespace HideNSeek
         {
             byte[] tmp = new byte[(int)Math.Ceiling((imgMap.Width * imgMap.Height * 3) / 8.0)];
 
-            byte[] str = { 60, 83, 84, 82, 62 };
-            byte[] end = { 60, 69, 78, 68, 62 };
-            bool STR = false, END = false;
-            int i = 0, j = 7, k = 0;
+            int i = 0, j = 7;
             int[] mask = { 1, 2, 4, 8, 16, 32, 64, 128 };
             int sum = 0;
-            for (int x = indexList[0]; x < imgMap.Width && !END; x += indexList[2])
+            for (int x = indexList[0]; x < imgMap.Width; x += indexList[2])
             {
-                for (int y = indexList[1]; y < imgMap.Height && !END; y += indexList[3])
+                for (int y = indexList[1]; y < imgMap.Height; y += indexList[3])
                 {
-                    if (i == tmp.Length)
-                    {
-                        END = true;
-                        break;
-                    }
-
                     Color pixelColor = imgMap.GetPixel(x, y);
 
                     if (indexList[4] == 1)
@@ -119,13 +93,7 @@ namespace HideNSeek
                         if (j < 0)
                         {
                             j = 7;
-                            if (STR && sum == 60)
-                            {
-                                END = true;
-                                break;
-                            }
-                            if (STR) tmp[i++] = (byte)sum;
-                            if (sum == 62) STR = true;
+                            tmp[i++] = (byte)sum;
                             sum = 0;
                         }
                     }
@@ -136,13 +104,7 @@ namespace HideNSeek
                         if (j < 0)
                         {
                             j = 7;
-                            if (STR && sum == 60)
-                            {
-                                END = true;
-                                break;
-                            }
-                            if (STR) tmp[i++] = (byte)sum;
-                            if (sum == 62) STR = true;
+                            tmp[i++] = (byte)sum;
                             sum = 0;
                         }
                     }
@@ -153,22 +115,33 @@ namespace HideNSeek
                         if (j < 0)
                         {
                             j = 7;
-                            if (STR && sum == 60)
-                            {
-                                END = true;
-                                break;
-                            }
-                            if (STR) tmp[i++] = (byte)sum;
-                            if (sum == 62) STR = true;
+                            tmp[i++] = (byte)sum;
                             sum = 0;
                         }
                     }
                 }
             }
 
-            byte[] textInByte = new byte[i];
-            Array.Copy(tmp, textInByte, textInByte.Length);
+            /*
+             <key>abc<key>ifc<idx>5,5,5,5,1,1,1<idx>
+            */
+            int k = 5;
+            byte[] end = { 60, 69, 78, 68, 62 };
+            for (; k < tmp.Length; k++)
+            {
+                int c = 0;
+                for (int t = k; c < 5 && tmp[t] == end[c]; t++, c++) ;
+                if (c == 5)
+                {
+                    break;
+                }
 
+            }
+            byte[] textInByte = new byte[k - 5];
+            for(int t = 0; t < k - 5; t++)
+            {
+                textInByte[t] = tmp[t + 5];
+            }
             return textInByte;
         }
     }

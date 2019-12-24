@@ -9,8 +9,6 @@ namespace HideNSeek
 {
     class TextProcessing
     {
-        // IV for AES encryption
-        private static string IV = "1234567812345678";
 
         // return 0 if space is not enough
         public static int InsertMsg(string rawInput, Bitmap imgMap)
@@ -27,7 +25,7 @@ namespace HideNSeek
             if (!string.IsNullOrEmpty(key))
             {
                 // Encrypt the string to an array of bytes.
-                byte[] plainByte = CryptoHandler.EncryptStringToBytes_Aes(rawInput, Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(IV));
+                byte[] plainByte = CryptoHandler.EncryptStringToBytes_Aes(rawInput, key, CryptoHandler.IV);
                 byte[] str = Encoding.UTF8.GetBytes("<STR>");
                 byte[] end = Encoding.UTF8.GetBytes("<END>");
                 textInByte = new byte[str.Length + plainByte.Length + end.Length];
@@ -69,7 +67,7 @@ namespace HideNSeek
             if (!string.IsNullOrEmpty(key))
             {
                 // Decrypt the bytes to a string.
-                return CryptoHandler.DecryptStringFromBytes_Aes(textInByte, Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(IV));
+                return CryptoHandler.DecryptStringFromBytes_Aes(textInByte, key, CryptoHandler.IV);
             }
             else
             {
