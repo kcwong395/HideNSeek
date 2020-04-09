@@ -27,37 +27,38 @@ namespace HideNSeek
         */
         public static void InsertByte(byte[] textInByte, Bitmap imgMap, int[] indexList)
         {
-            int i = 0, j = 7;
+            for (int i = 0; i < indexList.Length; i++) Console.WriteLine(indexList[i]);
+            int curByte = 0, curBit = 7;
             for (int x = indexList[0]; x < imgMap.Width; x += indexList[2])
             {
                 for (int y = indexList[1]; y < imgMap.Height; y += indexList[3])
                 {
-                    if (i == textInByte.Length) return;
-
                     Color pixelColor = imgMap.GetPixel(x, y);
 
-                    for(int k = 0; k < 3; k++)
+                    // k represents rgb
+                    for (int k = 0; k < 3; k++)
                     {
                         if(indexList[k + 4] == 1)
                         {
-                            int bit = (textInByte[i] >> j--) & 1;
-                            if(k + 4 == 4)
+                            int bit = (textInByte[curByte] >> curBit--) & 1;
+                            if(k == 0)
                             {
                                 pixelColor = Color.FromArgb((pixelColor.R & 0xFE) + bit, pixelColor.G, pixelColor.B);
                             }
-                            else if(k + 4 == 5)
+                            else if(k == 1)
                             {
                                 pixelColor = Color.FromArgb(pixelColor.R, (pixelColor.G & 0xFE) + bit, pixelColor.B);
                             }
                             else
                             {
-                                pixelColor = Color.FromArgb(pixelColor.R, (pixelColor.G & 0xFE) + bit, pixelColor.B);
+                                pixelColor = Color.FromArgb(pixelColor.R, pixelColor.G, (pixelColor.B & 0xFE) + bit);
                             }
-                            if (j < 0)
+                            if (curBit < 0)
                             {
-                                i++;
-                                j = 7;
-                                if (i == textInByte.Length)
+                                curByte++;    // process to next byte
+                                curBit = 7;  // reset the bit to 7
+
+                                if (curByte == textInByte.Length)
                                 {
                                     imgMap.SetPixel(x, y, pixelColor);
                                     return;
@@ -65,6 +66,7 @@ namespace HideNSeek
                             }
                         }
                     }
+                    // updates every pixel
                     imgMap.SetPixel(x, y, pixelColor);
                 }
             }
@@ -78,67 +80,100 @@ namespace HideNSeek
         {
             byte[] tmp = new byte[(int)Math.Ceiling((imgMap.Width * imgMap.Height * 3) / 8.0)];
 
-            int i = 0, j = 7;
+            int curByte = 0, curBit = 7;
             int[] mask = { 1, 2, 4, 8, 16, 32, 64, 128 };
+            
+            int endByte = 0;
+            byte[] end = { 60, 69, 78, 68, 62 };
+
             int sum = 0;
-            for (int x = indexList[0]; x < imgMap.Width; x += indexList[2])
+            bool done = false;
+            for (int x = indexList[0]; x < imgMap.Width && !done; x += indexList[2])
             {
-                for (int y = indexList[1]; y < imgMap.Height; y += indexList[3])
+                for (int y = indexList[1]; y < imgMap.Height && !done; y += indexList[3])
                 {
                     Color pixelColor = imgMap.GetPixel(x, y);
 
                     if (indexList[4] == 1)
                     {
-                        sum += (pixelColor.R & 1) * mask[j--];
-                        if (j < 0)
+                        sum += (pixelColor.R & 1) * mask[curBit--];
+                        if (curBit < 0)
                         {
-                            j = 7;
-                            tmp[i++] = (byte)sum;
+                            curBit = 7;
+                            tmp[curByte++] = (byte)sum;
+                            if ((byte)sum == end[endByte])
+                            {
+                                endByte++;
+                                if (endByte == 5)
+                                {
+                                    done = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                endByte = 0;
+                            }
                             sum = 0;
                         }
                     }
 
                     if (indexList[5] == 1)
                     {
-                        sum += (pixelColor.G & 1) * mask[j--];
-                        if (j < 0)
+                        sum += (pixelColor.G & 1) * mask[curBit--];
+                        if (curBit < 0)
                         {
-                            j = 7;
-                            tmp[i++] = (byte)sum;
+                            curBit = 7;
+                            tmp[curByte++] = (byte)sum;
+
+                            if ((byte)sum == end[endByte])
+                            {
+                                endByte++;
+                                if (endByte == 5)
+                                {
+                                    done = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                endByte = 0;
+                            }
+
                             sum = 0;
                         }
                     }
 
                     if (indexList[6] == 1)
                     {
-                        sum += (pixelColor.B & 1) * mask[j--];
-                        if (j < 0)
+                        sum += (pixelColor.B & 1) * mask[curBit--];
+                        if (curBit < 0)
                         {
-                            j = 7;
-                            tmp[i++] = (byte)sum;
+                            curBit = 7;
+                            tmp[curByte++] = (byte)sum;
+
+                            if ((byte)sum == end[endByte])
+                            {
+                                endByte++;
+                                if (endByte == 5)
+                                {
+                                    done = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                endByte = 0;
+                            }
+
                             sum = 0;
                         }
                     }
                 }
             }
 
-            /*
-             <key>abc<key>ifc<idx>5,5,5,5,1,1,1<idx>
-            */
-            int k = 5;
-            byte[] end = { 60, 69, 78, 68, 62 };
-            for (; k < tmp.Length; k++)
-            {
-                int c = 0;
-                for (int t = k; c < 5 && tmp[t] == end[c]; t++, c++) ;
-                if (c == 5)
-                {
-                    break;
-                }
-
-            }
-            byte[] textInByte = new byte[k - 5];
-            for(int t = 0; t < k - 5; t++)
+            byte[] textInByte = new byte[curByte - 10];
+            for (int t = 0; t < textInByte.Length; t++)
             {
                 textInByte[t] = tmp[t + 5];
             }
