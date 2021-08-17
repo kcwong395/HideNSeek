@@ -5,11 +5,15 @@ class TextHandler:
     def __init__(self):
         pass
 
-    def encodeMsg(self, msg: str) -> List[List[int]]:
+
+    def insert_indicator(self, msg: str) -> str:
+        return '<STR>' + msg + '<END>'
+
+    def encode_msg(self, msg: str) -> List[List[int]]:
         encoded_msg = msg.encode('utf-8')
         return [[(byte >> i) & 1 for i in range(7, -1, -1)] for byte in encoded_msg]
 
-    def decodeMsg(self, byte_arr: List[List[int]]) -> str:
+    def decode_msg(self, byte_arr: List[List[int]]) -> str:
         byte_str = bytearray()
         for byte in byte_arr:
             tmp = 0

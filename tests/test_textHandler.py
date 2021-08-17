@@ -3,9 +3,13 @@ from flaskr import textHandler
 
 
 class TestTextHandler(unittest.TestCase):
+    def test_insert(self):
+        h = textHandler.TextHandler()
+        self.assertEqual("<STR>français<END>", h.insert_indicator("français"))
+
     def test_encode(self):
         h = textHandler.TextHandler()
-        receive_res = h.encodeMsg("français")
+        receive_res = h.encode_msg("français")
         expected_res = [
             [0, 1, 1, 0, 0, 1, 1, 0],
             [0, 1, 1, 1, 0, 0, 1, 0],
@@ -17,10 +21,10 @@ class TestTextHandler(unittest.TestCase):
             [0, 1, 1, 0, 1, 0, 0, 1],
             [0, 1, 1, 1, 0, 0, 1, 1]
         ]
-        self.assertEqual(receive_res, expected_res)
+        self.assertEqual(expected_res, receive_res)
 
     def test_decode(self):
         h = textHandler.TextHandler()
-        received_res = h.decodeMsg(h.encodeMsg("français"))
-        expected_res = "français"
-        self.assertEqual(received_res, expected_res)
+        received_res = h.decode_msg(h.encode_msg("<STR>français<END>"))
+        expected_res = "<STR>français<END>"
+        self.assertEqual(expected_res, received_res)
