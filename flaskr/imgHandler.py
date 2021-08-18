@@ -1,21 +1,14 @@
 from functools import reduce
-
+from typing import List
 from PIL import Image
-import io
-import textHandler
+from flaskr import textHandler
 
 
 class ImgHandler:
     def __init__(self):
         pass
 
-    # borrow from https://stackoverflow.com/questions/33101935/convert-pil-image-to-byte-array
-    def image_to_byte_array(self, image: Image):
-        img_byte_arr = io.BytesIO()
-        image.save(img_byte_arr, format=image.format)
-        img_byte_arr = img_byte_arr.getvalue()
-        return img_byte_arr
-
+    # TODO: make the output name dynamic
     def embed_msg(self, image: Image, raw_msg: str) -> None:
         # get the msg in bit format
         h = textHandler.TextHandler()
@@ -23,7 +16,7 @@ class ImgHandler:
         byte_arr = h.encode_msg(msg)
 
         # flatten the 2d list to 1d list
-        reduce(lambda u, v: u + v, byte_arr)
+        byte_arr = reduce(lambda u, v: u + v, byte_arr)
 
         # insert the bit one by one
         x, y = image.size
@@ -36,15 +29,54 @@ class ImgHandler:
                     if bit_idx >= len(byte_arr):
                         break
                     else:
-                        # TODO: logic here need to be think carefully
-                        val[i] = byte_arr[bit_idx]
+                        val[k] = (val[k] & 254) + byte_arr[bit_idx]
                         bit_idx += 1
                 image.putpixel((i, j), (val[0], val[1], val[2]))
             if bit_idx >= len(byte_arr):
                 break
-        # save the alter image
-        filename = 'out_img_for_test/sheep.jpeg'
-        image.save(filename, image.format)
 
-    def extract_msg(self, image: Image) -> None:
-        pass
+        # save the alter image, must be in png format to prevent data lose
+        filename = 'out_img_for_test/sheep.png'
+        image.save(filename)
+
+    def extract_msg(self, image: Image) -> str:
+
+        x, y = image.size
+        byte_arr = []
+        tmp = []
+        h = textHandler.TextHandler()
+        done = False
+
+        for i in range(0, x):
+            for j in range(0, y):
+                pixel = image.getpixel((i, j))
+                for k in range(3):
+                    tmp.append(pixel[k] & 1)
+                    if len(tmp) >= 8:
+                        byte_arr.append(tmp)
+                        tmp = []
+                        # header and footer takes 10 byte
+                        if len(byte_arr) >= len(h.header) + len(h.footer):
+                            done = self.check_end(byte_arr)
+                        if done:
+                            break
+                if done:
+                    break
+            if done:
+                break
+
+        # decode the message
+        msg = h.decode_msg(byte_arr)
+
+        # remove the indicator
+        msg = h.remove_indicator(msg)
+
+        return msg
+
+    def check_end(self, byte_arr: List[List[int]]) -> bool:
+        h = textHandler.TextHandler()
+        footer_byte = h.encode_msg(h.footer)
+        for i in range(len(h.footer)):
+            if footer_byte[i] != byte_arr[len(h.footer) * -1 + i]:
+                return False
+        return True

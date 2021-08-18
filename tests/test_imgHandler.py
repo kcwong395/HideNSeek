@@ -4,13 +4,14 @@ from PIL import Image
 
 
 class TestImgHandler(unittest.TestCase):
-    def test_image_to_byte_array(self):
+    def test_embed_image_1(self):
         h = imgHandler.ImgHandler()
         img = Image.open('img_for_test/sheep.jpeg', mode='r')
-        h.image_to_byte_array(img)
-        print(img.size)
+        h.embed_msg(img, "français")
+        self.assertEqual("français", h.extract_msg(Image.open('out_img_for_test/sheep.png', mode='r')))
 
-    def test_save_image(self):
+    def test_embed_image_2(self):
         h = imgHandler.ImgHandler()
         img = Image.open('img_for_test/sheep.jpeg', mode='r')
-        h.save_image(img)
+        h.embed_msg(img, "I love Canada")
+        self.assertEqual("I love Canada", h.extract_msg(Image.open('out_img_for_test/sheep.png', mode='r')))
