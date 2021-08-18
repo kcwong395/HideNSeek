@@ -1,10 +1,16 @@
-from typing import List
+from typing import List, Optional
 
 
 class TextHandler:
     def __init__(self):
-        pass
+        self.header = '<STR>'
+        self.footer = '<END>'
 
+    def remove_indicator(self, msg: str) -> Optional[str]:
+        if not msg.startswith(self.header) or not msg.endswith(self.footer):
+            return None
+        else:
+            return msg[len(self.header):len(self.footer) * -1]
 
     def insert_indicator(self, msg: str) -> str:
         return '<STR>' + msg + '<END>'

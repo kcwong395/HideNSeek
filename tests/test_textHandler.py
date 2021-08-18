@@ -3,6 +3,10 @@ from flaskr import textHandler
 
 
 class TestTextHandler(unittest.TestCase):
+    def test_remove(self):
+        h = textHandler.TextHandler()
+        self.assertEqual("français", h.remove_indicator("<STR>français<END>"))
+
     def test_insert(self):
         h = textHandler.TextHandler()
         self.assertEqual("<STR>français<END>", h.insert_indicator("français"))
