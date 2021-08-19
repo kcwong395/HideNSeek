@@ -10,19 +10,7 @@ import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        HideNSeek
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import Footer from '../Footer/Footer';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -143,7 +131,7 @@ export default function Home() {
             )}
           </React.Fragment>
         </Paper>
-        <Copyright />
+        <Footer />
       </main>
     </React.Fragment>
   );
