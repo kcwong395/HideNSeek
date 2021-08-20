@@ -3,11 +3,22 @@ import Typography from '@material-ui/core/Typography';
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import { makeStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link'
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
     position: 'relative',
-  }
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  toolbar: {
+    flexWrap: 'wrap',
+  },
+  toolbarTitle: {
+    flexGrow: 1,
+  },
+  link: {
+    margin: theme.spacing(1, 1.5),
+  },
 }));
 
 export default function Header() {
@@ -15,11 +26,19 @@ export default function Header() {
   const classes = useStyles();
 
   return (
-    <AppBar position="absolute" color="default" className={classes.appBar}>
-      <Toolbar>
-        <Typography variant="h6" color="inherit" noWrap>
+    <AppBar position="absolute" color="default" elevation={0} className={classes.appBar}>
+      <Toolbar className={classes.toolbar}>
+        <Typography variant="h6" color="inherit" noWrap className={classes.toolbarTitle}>
           HideNSeek
         </Typography>
+        <nav>
+          <Link variant="button" color="textPrimary" href="/" className={classes.link}>
+            Hide
+          </Link>
+          <Link variant="button" color="textPrimary" href="/seek" className={classes.link}>
+            Seek
+          </Link>
+        </nav>
       </Toolbar>
     </AppBar>
   );
