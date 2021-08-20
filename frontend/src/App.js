@@ -3,18 +3,37 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import './App.css';
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import { makeStyles } from '@material-ui/core/styles';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import Hide from './components/Hide/Hide'
 import Seek from './components/Seek/Seek'
-import Main from './components/Main/Main'
+
+const useStyles = makeStyles((theme) => ({
+  layout: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh'
+  }
+}));
 
 export default function App() {
+
+  const classes = useStyles();
   return (
-    <React.Fragment>
-      <CssBaseline />
-      <Header />
-      <Main />
-      <Footer />
-    </React.Fragment>
+    <div className={classes.layout}>
+      <Router>
+        <CssBaseline />
+        <Header />
+        <Switch>
+          <Route path="/seek">
+            <Seek />
+          </Route>
+          <Route path="/">
+            <Hide />
+          </Route>
+        </Switch>
+        <Footer />
+      </Router>
+    </div>
   );
 }
