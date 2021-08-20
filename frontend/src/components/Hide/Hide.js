@@ -9,7 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { FormControlLabel } from '@material-ui/core';
-import Dropzone from './Dropzone/Dropzone';
+import Dropzone from '../Dropzone/Dropzone';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
