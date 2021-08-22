@@ -1,22 +1,19 @@
 import os
 
-from flask import Flask, request, url_for, redirect, render_template
-from werkzeug.utils import secure_filename
-from flaskr import fileHandler
+from flask import Flask, request, url_for, redirect, render_template, jsonify, send_file, send_from_directory
+from flask_cors import CORS
+from flaskr import service
 
 
 def create_app(test_config=None):
-
-    UPLOAD_FOLDER = '/tmp'
 
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-        UPLOAD_FOLDER=UPLOAD_FOLDER,
-        MAX_CONTENT_LENGTH=16 * 1024 * 1024 # 16mb
     )
+    CORS(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -31,19 +28,28 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route('/', methods=['GET', 'POST'])
-    def upload_file():
-        h = fileHandler.FileHandler()
-        if request.method == 'POST':
-            file = request.files['file']
-            if file and h.allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                # return redirect(url_for('uploaded_file', filename=filename))
-        return render_template('home.html')
+    @app.route('/api/hide', methods=['GET', 'POST'])
+    def hide():
+        s = service.Service()
 
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+        msg = request.form.get('message')
+        img = request.files.get('image')
+        filename = s.hide(img, msg)
+        print(filename)
+        return send_file(filename, mimetype='image/png', as_attachment=True)
+
+
+    @app.route('/api/seek', methods=['POST'])
+    def seek():
+        if request.method == 'POST':
+            print('post app')
+            req = request.json
+            print(req)
+            return jsonify(name='john')
 
     return app
+
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True)
