@@ -1,5 +1,7 @@
+import io
+
 from PIL import Image
-from flask import Response, send_file, jsonify
+from flask import Response, send_file, jsonify, make_response
 from werkzeug.datastructures import FileStorage
 
 from flaskr import imgHandler
@@ -17,11 +19,14 @@ class Service:
 
         image = Image.open(img)
         image_with_msg = self.imgHandler.embed_msg(image, msg_byte)
+        image_data = io.BytesIO()
         # save the alter image, must be in png format to prevent data lose
-        # TODO: without saving to a place
-        filename = '/tmp/sheep.png'
-        image_with_msg.save(filename)
-        return send_file(filename, mimetype='image/png', as_attachment=True)
+        image_with_msg.save(image_data, format='png')
+        # config the response
+        response = make_response()
+        response.headers.set('Content-Type', 'image/png')
+        response.data = image_data.getvalue()
+        return response
 
     def seek(self, img: FileStorage) -> Response:
         image = Image.open(img)
