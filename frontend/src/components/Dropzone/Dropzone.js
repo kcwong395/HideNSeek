@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useState} from 'react';
 import {useDropzone} from 'react-dropzone';
 
 const baseStyle = {
@@ -32,8 +32,6 @@ const rejectStyle = {
 export default function Dropzone(props) {
 
   const {
-    acceptedFiles,
-    fileRejections,
     getRootProps,
     getInputProps,
     isDragActive,
@@ -43,22 +41,7 @@ export default function Dropzone(props) {
     accept: 'image/jpeg, image/png'
   });
 
-  const acceptedFileItems = acceptedFiles.map(file => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-    </li>
-  ));
-
-  const fileRejectionItems = fileRejections.map(({ file, errors }) => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-      <ul>
-        {errors.map(e => (
-          <li key={e.code}>{e.message}</li>
-        ))}
-      </ul>
-    </li>
-  ));
+  const [selectedFile, setSelectedFile] = useState('');
 
   const style = useMemo(() => ({
     ...baseStyle,
@@ -71,18 +54,21 @@ export default function Dropzone(props) {
     isDragAccept
   ]);
 
+  const handleFileChange = (e) => {
+    console.log(e.target.files[0]);
+    props.onFileChange(e.target.files[0]);
+    setSelectedFile(e.target.files[0].name);
+  }
+
   return (
     <section className="container">
       <div {...getRootProps({ className: 'dropzone', style })}>
-        <input {...getInputProps()} />
+        <input {...getInputProps()} type="file" onChange={ handleFileChange } />
         <p>Drag 'n' drop some files here, or click to select files</p>
         <em>(Only *.jpeg and *.png images will be accepted)</em>
       </div>
       <aside>
-        <h4>Accepted files</h4>
-        <ul>{acceptedFileItems}</ul>
-        <h4>Rejected files</h4>
-        <ul>{fileRejectionItems}</ul>
+        <p>Selected file: {selectedFile}</p>
       </aside>
     </section>
   );
