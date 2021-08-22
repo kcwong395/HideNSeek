@@ -30,22 +30,17 @@ def create_app(test_config=None):
 
     @app.route('/api/hide', methods=['GET', 'POST'])
     def hide():
-        s = service.Service()
-
         msg = request.form.get('message')
         img = request.files.get('image')
-        filename = s.hide(img, msg)
-        print(filename)
-        return send_file(filename, mimetype='image/png', as_attachment=True)
+        s = service.Service()
+        return s.hide(img, msg)
 
 
     @app.route('/api/seek', methods=['POST'])
     def seek():
-        if request.method == 'POST':
-            print('post app')
-            req = request.json
-            print(req)
-            return jsonify(name='john')
+        img = request.files.get('image')
+        s = service.Service()
+        return s.seek(img)
 
     return app
 
