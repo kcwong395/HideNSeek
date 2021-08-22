@@ -1,6 +1,7 @@
 from functools import reduce
 from typing import List
 from PIL import Image
+
 from flaskr import textHandler
 
 
@@ -9,11 +10,7 @@ class ImgHandler:
         pass
 
     # TODO: make the output name dynamic
-    def embed_msg(self, image: Image, raw_msg: str) -> None:
-        # get the msg in bit format
-        h = textHandler.TextHandler()
-        msg = h.insert_indicator(raw_msg)
-        byte_arr = h.encode_msg(msg)
+    def embed_msg(self, image: Image, byte_arr: List[List[int]]) -> Image:
 
         # flatten the 2d list to 1d list
         byte_arr = reduce(lambda u, v: u + v, byte_arr)
@@ -35,11 +32,9 @@ class ImgHandler:
             if bit_idx >= len(byte_arr):
                 break
 
-        # save the alter image, must be in png format to prevent data lose
-        filename = 'out_img_for_test/sheep.png'
-        image.save(filename)
+        return image
 
-    def extract_msg(self, image: Image) -> str:
+    def extract_msg(self, image: Image) -> List[List[int]]:
 
         x, y = image.size
         byte_arr = []
@@ -57,23 +52,16 @@ class ImgHandler:
                         tmp = []
                         # header and footer takes 10 byte
                         if len(byte_arr) >= len(h.header) + len(h.footer):
-                            done = self.check_end(byte_arr)
+                            done = self.__check_end(byte_arr)
                         if done:
                             break
                 if done:
                     break
             if done:
                 break
+        return byte_arr
 
-        # decode the message
-        msg = h.decode_msg(byte_arr)
-
-        # remove the indicator
-        msg = h.remove_indicator(msg)
-
-        return msg
-
-    def check_end(self, byte_arr: List[List[int]]) -> bool:
+    def __check_end(self, byte_arr: List[List[int]]) -> bool:
         h = textHandler.TextHandler()
         footer_byte = h.encode_msg(h.footer)
         for i in range(len(h.footer)):
