@@ -4,6 +4,7 @@ import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import { makeStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link'
+import { Link as RouterLink } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -32,7 +33,7 @@ export default function Header() {
       <AppBar position="absolute" color="default" elevation={0} className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
           <Typography variant="h6" color="inherit" noWrap className={classes.toolbarTitle}>
-            HideNSeek
+            <RouterLink to="/" style={{ textDecoration: 'none', color: '#202020' }}>HideNSeek</RouterLink>
           </Typography>
           <nav>
             <Link variant="button" color="textPrimary" href="/" className={classes.link}>
