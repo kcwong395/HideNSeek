@@ -13,13 +13,13 @@ import axios from 'axios'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(6),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
   avatar: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(3),
     backgroundColor: theme.palette.secondary.main,
   },
   secret: {
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
   form: {
     width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(3),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -81,6 +81,7 @@ export default function Hide() {
             Base Image:
           </Typography>
           <Dropzone onFileChange={ setSelectedFile } />
+          <br />
           <Typography variant="subtitle2" gutterBottom>
             Message to be inserted:
           </Typography>
