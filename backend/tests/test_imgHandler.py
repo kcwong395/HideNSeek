@@ -1,17 +1,23 @@
 import unittest
-from flaskr import imgHandler
+from flaskr.imgHandler import ImgHandler
+from flaskr.textHandler import TextHandler
 from PIL import Image
 
 
 class TestImgHandler(unittest.TestCase):
     def test_embed_image_1(self):
-        h = imgHandler.ImgHandler()
         img = Image.open('img_for_test/sheep.jpeg', mode='r')
-        h.embed_msg(img, "français")
-        self.assertEqual("français", h.extract_msg(Image.open('out_img_for_test/sheep.png', mode='r')))
+        text = TextHandler.encode_msg(TextHandler.insert_indicator("français"))
+        image = ImgHandler.embed_msg(img, text)
+        msg = TextHandler.decode_msg(ImgHandler.extract_msg(image))
+        msg = TextHandler.remove_indicator(msg)
+        self.assertEqual("français", msg)
 
     def test_embed_image_2(self):
-        h = imgHandler.ImgHandler()
         img = Image.open('img_for_test/sheep.jpeg', mode='r')
-        h.embed_msg(img, "I love Canada")
-        self.assertEqual("I love Canada", h.extract_msg(Image.open('out_img_for_test/sheep.png', mode='r')))
+        text = TextHandler.encode_msg(TextHandler.insert_indicator("I love Canada"))
+        ImgHandler.embed_msg(img, text)
+        image = ImgHandler.embed_msg(img, text)
+        msg = TextHandler.decode_msg(ImgHandler.extract_msg(image))
+        msg = TextHandler.remove_indicator(msg)
+        self.assertEqual("I love Canada", msg)
