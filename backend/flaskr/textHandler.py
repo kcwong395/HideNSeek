@@ -1,25 +1,29 @@
-from typing import List, Optional
+from typing import List, Optional, Final
 
 
 class TextHandler:
-    def __init__(self):
-        self.header = '<STR>'
-        self.footer = '<END>'
 
-    def remove_indicator(self, msg: str) -> Optional[str]:
-        if not msg.startswith(self.header) or not msg.endswith(self.footer):
+    _HEADER: Final = '<STR>'
+    _FOOTER: Final = '<END>'
+
+    @staticmethod
+    def remove_indicator(msg: str) -> Optional[str]:
+        if not msg.startswith(TextHandler._HEADER) or not msg.endswith(TextHandler._FOOTER):
             return None
         else:
-            return msg[len(self.header):len(self.footer) * -1]
+            return msg[len(TextHandler._HEADER):len(TextHandler._FOOTER) * -1]
 
-    def insert_indicator(self, msg: str) -> str:
-        return '<STR>' + msg + '<END>'
+    @staticmethod
+    def insert_indicator(msg: str) -> str:
+        return TextHandler._HEADER + msg + TextHandler._FOOTER
 
-    def encode_msg(self, msg: str) -> List[List[int]]:
+    @staticmethod
+    def encode_msg(msg: str) -> List[List[int]]:
         encoded_msg = msg.encode('utf-8')
         return [[(byte >> i) & 1 for i in range(7, -1, -1)] for byte in encoded_msg]
 
-    def decode_msg(self, byte_arr: List[List[int]]) -> str:
+    @staticmethod
+    def decode_msg(byte_arr: List[List[int]]) -> str:
         byte_str = bytearray()
         for byte in byte_arr:
             tmp = 0
