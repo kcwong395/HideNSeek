@@ -7,6 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Hide from './components/Hide/Hide'
 import Seek from './components/Seek/Seek'
+import Home from './components/Home/Home'
 
 const useStyles = makeStyles((theme) => ({
   layout: {
@@ -25,11 +26,14 @@ export default function App() {
         <CssBaseline />
         <Header />
         <Switch>
+          <Route path="/">
+            <Home />
+          </Route>
+          <Route path="/hide">
+            <Hide />
+          </Route>
           <Route path="/seek">
             <Seek />
-          </Route>
-          <Route path="/">
-            <Hide />
           </Route>
         </Switch>
         <Footer />
