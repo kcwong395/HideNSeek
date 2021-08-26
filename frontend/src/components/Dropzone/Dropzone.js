@@ -55,7 +55,6 @@ export default function Dropzone(props) {
   ]);
 
   const handleFileChange = (e) => {
-    console.log(e.target.files[0]);
     props.onFileChange(e.target.files[0]);
     setSelectedFile(e.target.files[0].name);
   }
