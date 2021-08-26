@@ -78,7 +78,7 @@ export default function Hide() {
           noValidate
         >
           <Typography variant="subtitle2" gutterBottom>
-            Base Image File:
+            Base Image:
           </Typography>
           <Dropzone onFileChange={ setSelectedFile } />
           <Typography variant="subtitle2" gutterBottom>

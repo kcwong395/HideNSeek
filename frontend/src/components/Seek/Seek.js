@@ -76,7 +76,7 @@ export default function Seek() {
           noValidate
         >
           <Typography variant="subtitle2" gutterBottom>
-            Base Image File:
+            Altered Image:
           </Typography>
           <Dropzone onFileChange={ setSelectedFile } />
           <FormControlLabel
