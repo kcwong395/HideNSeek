@@ -1,12 +1,11 @@
 import os
 
-from flask import Flask, request, url_for, redirect, render_template, jsonify, send_file, send_from_directory
+from flask import Flask, request
 from flask_cors import CORS
-from flaskr import service
+from serviceFacade import ServiceFacade
 
 
 def create_app(test_config=None):
-
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
@@ -32,15 +31,12 @@ def create_app(test_config=None):
     def hide():
         msg = request.form.get('message')
         img = request.files.get('image')
-        s = service.Service()
-        return s.hide(img, msg)
-
+        return ServiceFacade.hide(img, msg)
 
     @app.route('/api/seek', methods=['POST'])
     def seek():
         img = request.files.get('image')
-        s = service.Service()
-        return s.seek(img)
+        return ServiceFacade.seek(img)
 
     return app
 
