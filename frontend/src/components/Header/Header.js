@@ -10,8 +10,10 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     borderBottom: `1px solid ${theme.palette.divider}`,
   },
+  // TODO: Make diff padding for diff devices, or make colleapse menu for mobile
   toolbar: {
     flexWrap: 'wrap',
+    padding: '0px 10%'
   },
   toolbarTitle: {
     flexGrow: 1,
@@ -26,20 +28,22 @@ export default function Header() {
   const classes = useStyles();
 
   return (
-    <AppBar position="absolute" color="default" elevation={0} className={classes.appBar}>
-      <Toolbar className={classes.toolbar}>
-        <Typography variant="h6" color="inherit" noWrap className={classes.toolbarTitle}>
-          HideNSeek
-        </Typography>
-        <nav>
-          <Link variant="button" color="textPrimary" href="/" className={classes.link}>
-            Hide
-          </Link>
-          <Link variant="button" color="textPrimary" href="/seek" className={classes.link}>
-            Seek
-          </Link>
-        </nav>
-      </Toolbar>
-    </AppBar>
+    <React.Fragment>
+      <AppBar position="absolute" color="default" elevation={0} className={classes.appBar}>
+        <Toolbar className={classes.toolbar}>
+          <Typography variant="h6" color="inherit" noWrap className={classes.toolbarTitle}>
+            HideNSeek
+          </Typography>
+          <nav>
+            <Link variant="button" color="textPrimary" href="/" className={classes.link}>
+              Hide
+            </Link>
+            <Link variant="button" color="textPrimary" href="/seek" className={classes.link}>
+              Seek
+            </Link>
+          </nav>
+        </Toolbar>
+      </AppBar>
+    </React.Fragment>
   );
 }
