@@ -4,7 +4,7 @@ import './App.css';
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
 import { makeStyles } from '@material-ui/core/styles';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Hide from './components/Hide/Hide'
 import Seek from './components/Seek/Seek'
 
