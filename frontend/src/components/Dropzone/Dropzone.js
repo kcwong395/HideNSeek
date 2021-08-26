@@ -64,7 +64,7 @@ export default function Dropzone(props) {
     <section className="container">
       <div {...getRootProps({ className: 'dropzone', style })}>
         <input {...getInputProps()} type="file" onChange={ handleFileChange } />
-        <p>Drag 'n' drop some files here, or click to select files</p>
+        <p>Drag and drop the image here, or click to select it</p>
         <em>(Only *.jpeg and *.png images will be accepted)</em>
       </div>
       <aside>
