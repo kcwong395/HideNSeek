@@ -2,15 +2,14 @@ from functools import reduce
 from typing import List
 from PIL import Image
 
-from flaskr import textHandler
+from textHandler import TextHandler
 
 
 class ImgHandler:
-    def __init__(self):
-        pass
 
     # TODO: make the output name dynamic
-    def embed_msg(self, image: Image, byte_arr: List[List[int]]) -> Image:
+    @staticmethod
+    def embed_msg(image: Image, byte_arr: List[List[int]]) -> Image:
 
         # flatten the 2d list to 1d list
         byte_arr = reduce(lambda u, v: u + v, byte_arr)
@@ -34,12 +33,12 @@ class ImgHandler:
 
         return image
 
-    def extract_msg(self, image: Image) -> List[List[int]]:
+    @staticmethod
+    def extract_msg(image: Image) -> List[List[int]]:
 
         x, y = image.size
         byte_arr = []
         tmp = []
-        h = textHandler.TextHandler()
         done = False
 
         for i in range(0, x):
@@ -51,8 +50,8 @@ class ImgHandler:
                         byte_arr.append(tmp)
                         tmp = []
                         # header and footer takes 10 byte
-                        if len(byte_arr) >= len(h.header) + len(h.footer):
-                            done = self.__check_end(byte_arr)
+                        if len(byte_arr) >= len(TextHandler.HEADER) + len(TextHandler.FOOTER):
+                            done = ImgHandler.__check_end(byte_arr)
                         if done:
                             break
                 if done:
@@ -61,10 +60,11 @@ class ImgHandler:
                 break
         return byte_arr
 
-    def __check_end(self, byte_arr: List[List[int]]) -> bool:
-        h = textHandler.TextHandler()
-        footer_byte = h.encode_msg(h.footer)
-        for i in range(len(h.footer)):
-            if footer_byte[i] != byte_arr[len(h.footer) * -1 + i]:
+
+    @staticmethod
+    def __check_end(byte_arr: List[List[int]]) -> bool:
+        footer_byte = TextHandler.encode_msg(TextHandler.FOOTER)
+        for i in range(len(TextHandler.FOOTER)):
+            if footer_byte[i] != byte_arr[len(TextHandler.FOOTER) * -1 + i]:
                 return False
         return True
