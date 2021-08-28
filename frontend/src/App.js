@@ -26,14 +26,14 @@ export default function App() {
         <CssBaseline />
         <Header />
         <Switch>
-          <Route path="/">
-            <Home />
-          </Route>
           <Route path="/hide">
             <Hide />
           </Route>
           <Route path="/seek">
             <Seek />
+          </Route>
+          <Route path="/">
+            <Home />
           </Route>
         </Switch>
         <Footer />

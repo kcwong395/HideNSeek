@@ -4,8 +4,8 @@ from PIL import Image
 from flask import Response, jsonify, make_response
 from werkzeug.datastructures import FileStorage
 
-from imgHandler import ImgHandler
-from textHandler import TextHandler
+from flaskr.imgHandler import ImgHandler
+from flaskr.textHandler import TextHandler
 
 
 class ServiceFacade:

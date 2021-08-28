@@ -2,7 +2,7 @@ from functools import reduce
 from typing import List
 from PIL import Image
 
-from textHandler import TextHandler
+from flaskr.textHandler import TextHandler
 
 
 class ImgHandler:

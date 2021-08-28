@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, request
 from flask_cors import CORS
-from serviceFacade import ServiceFacade
+from flaskr.serviceFacade import ServiceFacade
 
 
 def create_app(test_config=None):
@@ -40,7 +40,3 @@ def create_app(test_config=None):
 
     return app
 
-
-if __name__ == '__main__':
-    app = create_app()
-    app.run(host="0.0.0.0", port=5000)

@@ -36,7 +36,7 @@ export default function Header() {
             <RouterLink to="/" style={{ textDecoration: 'none', color: '#202020' }}>HideNSeek</RouterLink>
           </Typography>
           <nav>
-            <Link variant="button" color="textPrimary" href="/" className={classes.link}>
+            <Link variant="button" color="textPrimary" href="/hide" className={classes.link}>
               Hide
             </Link>
             <Link variant="button" color="textPrimary" href="/seek" className={classes.link}>
