@@ -12,6 +12,7 @@ export default function Home() {
             <Container maxWidth="lg" style={{ textAlign: 'center' }}>
             <video width="100%" height="100%" controls>
                 <source src="HideNSeek-Demo.mkv" type="video/mp4" />
+                <source src="HideNSeek-Demo.webm" type="video/webm" />
                 Your browser does not support the video tag.
             </video> 
             </Container>
