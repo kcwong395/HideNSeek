@@ -12,3 +12,5 @@ COPY . .
 ENV FLASK_APP=flaskr
 ENV FLASK_ENV=production
 
+CMD [ "flask", "run", "--host=0.0.0.0" ]
+
