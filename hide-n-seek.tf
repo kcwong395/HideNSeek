@@ -25,14 +25,14 @@ resource "azurerm_container_group" "hide_n_seek_containers" {
 
   container {
     name   = "backend"
-    image  = "kcwong395/hidenseek-hns-backend:latest"
+    image  = "kcwong395/hns-backend:latest"
     cpu    = "0.5"
     memory = "0.5"
   }
 
   container {
     name   = "frontend"
-    image  = "kcwong395/hidenseek-hns-frontend:latest"
+    image  = "kcwong395/hns-frontend:latest"
     cpu    = "0.5"
     memory = "0.5"
 
