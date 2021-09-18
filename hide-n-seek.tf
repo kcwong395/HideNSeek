@@ -20,6 +20,8 @@ resource "azurerm_container_group" "hide_n_seek_containers" {
   name                = "HideNSeekContainer"
   location            = azurerm_resource_group.hide_n_seek.location
   resource_group_name = azurerm_resource_group.hide_n_seek.name
+  # can be accessed via hidenseek.eastus.azurecontainer.io
+  dns_name_label      = "hidenseek"
   ip_address_type     = "public"
   os_type             = "Linux"
 
