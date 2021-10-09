@@ -14,7 +14,7 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build-and-test: # This is the name of the job, feel free to change it to better match what you're trying to do!
+  test: # This is the name of the job, feel free to change it to better match what you're trying to do!
     # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
     # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
     # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
@@ -29,8 +29,6 @@ jobs:
     # CircleCI will report the results back to your VCS provider.
     steps:
       - checkout
-      - run: ls ~/project
-      - run: ls ~/project/backend
       - python/install-packages:
           pkg-manager: pip
           app-dir: ~/project/backend  # If you're requirements.txt isn't in the root directory.
@@ -39,6 +37,12 @@ jobs:
           name: Run tests
           # Run the tests placed under backend/tests
           command: python -m unittest discover -s backend/tests -p "test_*.py" -v
+  build:
+    machine: true # Use a Linux VM instead of docker environment
+    working_directory: ~/project
+    steps:
+      - run: docker-compose build
+      - run: docker-compose push
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -46,4 +50,7 @@ workflows:
   test: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - build-and-test
+      - test
+      - build:
+          requires:
+            - test
