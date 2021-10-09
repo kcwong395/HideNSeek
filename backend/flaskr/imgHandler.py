@@ -1,8 +1,12 @@
 from functools import reduce
-from typing import List
+from typing import List, Optional
 from PIL import Image
 
 from flaskr.textHandler import TextHandler
+
+
+class UnexpectedOutput(Exception):
+    pass
 
 
 class ImgHandler:
@@ -34,12 +38,11 @@ class ImgHandler:
         return image
 
     @staticmethod
-    def extract_msg(image: Image) -> List[List[int]]:
+    def extract_msg(image: Image) -> Optional[List[List[int]]]:
 
         x, y = image.size
         byte_arr = []
         tmp = []
-        done = False
 
         for i in range(0, x):
             for j in range(0, y):
@@ -50,19 +53,14 @@ class ImgHandler:
                         byte_arr.append(tmp)
                         tmp = []
                         # header and footer takes 10 byte
-                        if len(byte_arr) >= len(TextHandler.HEADER) + len(TextHandler.FOOTER):
-                            done = ImgHandler.__check_end(byte_arr)
-                        if done:
-                            break
-                if done:
-                    break
-            if done:
-                break
-        return byte_arr
-
+                        if ImgHandler.__is_end(byte_arr):
+                            return byte_arr
+        raise UnexpectedOutput("Failed to retrieve the result")
 
     @staticmethod
-    def __check_end(byte_arr: List[List[int]]) -> bool:
+    def __is_end(byte_arr: List[List[int]]) -> bool:
+        if len(byte_arr) < len(TextHandler.HEADER) + len(TextHandler.FOOTER):
+            return False
         footer_byte = TextHandler.encode_msg(TextHandler.FOOTER)
         for i in range(len(TextHandler.FOOTER)):
             if footer_byte[i] != byte_arr[len(TextHandler.FOOTER) * -1 + i]:
