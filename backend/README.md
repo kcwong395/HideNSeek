@@ -1,8 +1,12 @@
 ## Maintenance
 
+### install required package
+
+pip install -r backend/requirements.txt
+
 ### Update requirements.txt
 
-pip3 freeze > requirements.txt
+pip3 freeze > backend/requirements.txt
 
 ### Build docker image with dockerfile
 
