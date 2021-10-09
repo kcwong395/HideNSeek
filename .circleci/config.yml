@@ -41,6 +41,7 @@ jobs:
     machine: true # Use a Linux VM instead of docker environment
     working_directory: ~/project
     steps:
+      - checkout
       - run: pwd
       - run: ls
       - run: docker-compose build
