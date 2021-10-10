@@ -51,11 +51,13 @@ jobs:
     executor: terraform/default
     steps:
       - checkout
+      - run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
       - run: az login -u $AZURE_APPID -p $AZURE_PASS --tenant $AZURE_TENANT
       - terraform/init:
           path: .
       - terraform/apply:
           path: .
+      
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -69,5 +71,6 @@ workflows:
           requires:
             - test
       - deploy:
+          context: Azure
           requires:
             - build
