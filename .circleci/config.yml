@@ -11,6 +11,7 @@ orbs:
   # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
   python: circleci/python@1.2
   terraform: circleci/terraform@3.0.0
+  azure-cli: circleci/azure-cli@1.2.0
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
@@ -46,12 +47,14 @@ jobs:
       - run: docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
       - run: docker-compose build
       - run: docker-compose push
-  infra-init:
+  deploy:
     executor: terraform/default
     steps:
       - checkout
-      - run: ls
+      - run: az login -u $AZURE_APPID -p $AZURE_PASS --tenant $AZURE_TENANT
       - terraform/init:
+          path: .
+      - terraform/apply:
           path: .
 
 # Invoke jobs via workflows
@@ -65,6 +68,6 @@ workflows:
           context: Dockerhub
           requires:
             - test
-      - infra-init:
+      - deploy:
           requires:
             - build
