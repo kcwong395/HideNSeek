@@ -26,4 +26,4 @@ terraform apply
 
 ### Redeploy the app with latest images
 
-azure restart HideNSeek
+azure container restart -g HideNSeekContainer

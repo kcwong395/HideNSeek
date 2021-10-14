@@ -31,7 +31,7 @@ jobs:
     executor: azure-cli/azure-docker
     steps:
       - run: az login --service-principal -u $AZURE_APPID -p $AZURE_PASS --tenant $AZURE_TENANT
-      - run: az restart HideNSeekContainer
+      - run: az container restart -g HideNSeekContainer
       
 
 # Invoke jobs via workflows
