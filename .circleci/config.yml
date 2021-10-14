@@ -31,9 +31,9 @@ jobs:
     executor: azure-cli/azure-docker
     steps:
       - azure-cli/login-with-user:
-          azure-username: $AZURE_APPID
-          azure-password: $AZURE_PASS
-          azure-tenant:   $AZURE_TENANT
+          azure-username: "${AZURE_APPID}"
+          azure-password: "{$AZURE_PASS}"
+          azure-tenant:   "{$AZURE_TENANT}"
       - run: az restart HideNSeek
       
 
@@ -43,12 +43,12 @@ workflows:
   test-build: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - test
-      - build:
-          context: Dockerhub
-          requires:
-            - test
+      #- test
+      #- build:
+      #    context: Dockerhub
+      #    requires:
+      #      - test
       - deploy:
           context: Azure
-          requires:
-            - build
+      #    requires:
+      #      - build
