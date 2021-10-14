@@ -15,3 +15,15 @@ pip3 freeze > backend/requirements.txt
 ### Build docker image with dockerfile
 
 sudo docker build -t hns-backend:v1.0 .
+
+### Update infrastructure
+
+terraform init
+
+terraform plan
+
+terraform apply
+
+### Redeploy the app with latest images
+
+azure restart HideNSeek
