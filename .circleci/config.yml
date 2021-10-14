@@ -30,10 +30,7 @@ jobs:
   deploy:
     executor: azure-cli/azure-docker
     steps:
-      - run: export AZURE_USERNAME=$AZURE_APPID
-      - run: export AZURE_PASSWORD=$AZURE_PASS
-      - run: export AZURE_TENANT=$AZURE_TENANT
-      - azure-cli/login-with-user
+      - run: az login --service-principal -u $AZURE_APPID -p $AZURE_PASS --tenant $AZURE_TENANT
       - run: az restart HideNSeek
       
 
