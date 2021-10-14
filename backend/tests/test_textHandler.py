@@ -1,5 +1,5 @@
 import unittest
-from backend.flaskr.textHandler import TextHandler
+from flaskr.textHandler import TextHandler
 
 
 class TestTextHandler(unittest.TestCase):

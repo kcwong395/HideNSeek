@@ -2,7 +2,7 @@ from functools import reduce
 from typing import List, Optional
 from PIL import Image
 
-from backend.flaskr.textHandler import TextHandler
+from flaskr.textHandler import TextHandler
 
 
 class UnexpectedOutput(Exception):

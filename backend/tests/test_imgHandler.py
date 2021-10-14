@@ -1,6 +1,6 @@
 import unittest
-from backend.flaskr.imgHandler import ImgHandler
-from backend.flaskr.textHandler import TextHandler
+from flaskr.imgHandler import ImgHandler
+from flaskr.textHandler import TextHandler
 from PIL import Image
 
 

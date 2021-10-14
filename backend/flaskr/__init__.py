@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, request
 from flask_cors import CORS
-from backend.flaskr.serviceFacade import ServiceFacade
+from flaskr.serviceFacade import ServiceFacade
 
 
 def create_app(test_config=None):
