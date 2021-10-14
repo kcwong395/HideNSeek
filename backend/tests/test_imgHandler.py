@@ -6,7 +6,7 @@ from PIL import Image
 
 class TestImgHandler(unittest.TestCase):
     def test_embed_image_1(self):
-        img = Image.open('abctests/img_for_test/sheep.jpeg', mode='r')
+        img = Image.open('tests/img_for_test/sheep.jpeg', mode='r')
         text = TextHandler.encode_msg(TextHandler.insert_indicator("français"))
         image = ImgHandler.embed_msg(img, text)
         msg = TextHandler.decode_msg(ImgHandler.extract_msg(image))
